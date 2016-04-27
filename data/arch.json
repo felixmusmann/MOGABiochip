@@ -1,0 +1,148 @@
+{
+  "width": 19,
+  "height": 6,
+  "inactiveElectrodes": [
+    {
+      "x": 0,
+      "y": 0
+    },
+    {
+      "x": 1,
+      "y": 0
+    },
+    {
+      "x": 2,
+      "y": 0
+    },
+    {
+      "x": 11,
+      "y": 0
+    },
+    {
+      "x": 12,
+      "y": 0
+    },
+    {
+      "x": 13,
+      "y": 0
+    },
+    {
+      "x": 14,
+      "y": 0
+    },
+    {
+      "x": 0,
+      "y": 1
+    },
+    {
+      "x": 11,
+      "y": 1
+    },
+    {
+      "x": 12,
+      "y": 1
+    },
+    {
+      "x": 13,
+      "y": 1
+    },
+    {
+      "x": 14,
+      "y": 1
+    },
+    {
+      "x": 9,
+      "y": 2
+    },
+    {
+      "x": 10,
+      "y": 2
+    },
+    {
+      "x": 11,
+      "y": 2
+    },
+    {
+      "x": 12,
+      "y": 2
+    },
+    {
+      "x": 13,
+      "y": 2
+    },
+    {
+      "x": 14,
+      "y": 2
+    },
+    {
+      "x": 9,
+      "y": 3
+    },
+    {
+      "x": 10,
+      "y": 3
+    },
+    {
+      "x": 11,
+      "y": 3
+    },
+    {
+      "x": 12,
+      "y": 3
+    },
+    {
+      "x": 13,
+      "y": 3
+    },
+    {
+      "x": 14,
+      "y": 3
+    },
+    {
+      "x": 13,
+      "y": 4
+    },
+    {
+      "x": 14,
+      "y": 4
+    }
+  ],
+  "devices": [
+    {
+      "type": "dispenserSample",
+      "id": 0,
+      "executionTime": 7,
+      "shape": {
+        "width": 0,
+        "height": 7
+      }
+    },
+    {
+      "type": "dispenserBuffer",
+      "id": 0,
+      "executionTime": 7,
+      "shape": {
+        "width": 0,
+        "height": 7
+      }
+    },
+    {
+      "type": "dispenserReagent",
+      "id": 0,
+      "executionTime": 7,
+      "shape": {
+        "width": 1,
+        "height": 2
+      }
+    },
+    {
+      "type": "opticalDetector",
+      "id": 1,
+      "executionTime": 4,
+      "shape": {
+        "width": 1,
+        "height": 30
+      }
+    }
+  ]
+}

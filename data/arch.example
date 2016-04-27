@@ -1,0 +1,10 @@
+%comment_line1/2: width/height of biochip
+19
+6
+%comment_line2: the coordinates of inactive cells (0,0) is top right corner, coordinates are (row column)
+0 0 0 1 0 2 0 11 0 12 0 13 0 14 1 0 1 11 1 12 1 13 1 14 2 9 2 10 2 11 2 12 2 13 2 14 3 9 3 10 3 11 3 12 3 13 3 14 4 13 4 14
+%comment_line3:entries_for_nonReconfigurable_devices: name  width  height  execTime  number_per_chip
+disS 0 0 7 1
+disB 0 0 7 2
+disR 0 0 7 2
+opt 1 1 30 4
