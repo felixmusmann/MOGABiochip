@@ -1,4 +1,14 @@
 public class Shape {
-    protected int width;
-    protected int height;
+    private int width;
+    private int height;
+
+    public Shape(int width, int height) {
+        this.width = width;
+        this.height = height;
+    }
+
+    public Shape(Shape other) {
+        this.width = other.width;
+        this.height = other.height;
+    }
 }

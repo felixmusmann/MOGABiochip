@@ -2,7 +2,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.sun.tools.javac.util.Pair;
+import javafx.util.Pair;
 
 import java.io.FileReader;
 import java.util.ArrayList;
@@ -41,34 +41,8 @@ public class ArchitectureParser {
         }
     }
 
-    public void saveArchitecture(Architecture arch) {
-        // TODO
-    }
-
-    private ArrayList<ArrayList<Electrode>> buildElectrodes(int width, int height, JsonArray inactiveCellsArray) {
-        // List at index 0 contains active cells, list at index 1 contains inactive cells
-        ArrayList<ArrayList<Electrode>> cells = new ArrayList<>(2);
-
-        cells.add(0, new ArrayList<Electrode>(width * height));
-        cells.add(1, new ArrayList<Electrode>(width * height));
-
-        // Initialize active list with all cells
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                cells.get(0).add(new Electrode(x, y));
-            }
-        }
-
-        // Remove cells from active list and add them to inactive list
-        for (int i = 0; i < inactiveCellsArray.size(); i++) {
-            JsonObject coordinates = inactiveCellsArray.get(i).getAsJsonObject();
-            int x = coordinates.get("x").getAsInt();
-            int y = coordinates.get("y").getAsInt();
-            Electrode inactiveElectrode = cells.get(0).remove(y * width + x);
-            cells.get(1).add(inactiveElectrode);
-        }
-
-        return cells;
+    public void saveArchitecture(Architecture arch, String filename) {
+        // TODO: save architecture to json file
     }
 
     private ArrayList<Device> buildDevices(JsonArray deviceArray) {
@@ -100,9 +74,7 @@ public class ArchitectureParser {
             }
 
             JsonObject shapeObject = deviceObject.get("shape").getAsJsonObject();
-            Shape shape = new Shape();
-            shape.width = shapeObject.get("width").getAsInt();
-            shape.height = shapeObject.get("height").getAsInt();
+            Shape shape = new Shape(shapeObject.get("width").getAsInt(), shapeObject.get("height").getAsInt());
 
             devices.add(new Device(type, id, executionTime, shape));
         }

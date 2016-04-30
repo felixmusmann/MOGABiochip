@@ -15,4 +15,27 @@ public class Device {
         this.executionTime = executionTime;
         this.shape = shape;
     }
+
+    public Device(Device other) {
+        this.type = other.type;
+        this.id = other.id;
+        this.executionTime = other.id;
+        this.shape = new Shape(other.shape);
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public int getExecutionTime() {
+        return executionTime;
+    }
+
+    public Shape getShape() {
+        return shape;
+    }
 }
