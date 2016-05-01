@@ -54,8 +54,7 @@ public class Architecture {
         this.activeElectrodes = new ArrayList<>();
         this.inactiveElectrodes = new ArrayList<>();
         this.electrodeGrid = new ArrayList<>();
-        for (ArrayList<Electrode> column :
-                other.electrodeGrid) {
+        for (ArrayList<Electrode> column : other.electrodeGrid) {
             ArrayList<Electrode> columnCopy = new ArrayList<>();
             for (Electrode electrode : column) {
                 Electrode electrodeCopy = new Electrode(electrode);
@@ -218,19 +217,19 @@ public class Architecture {
         Architecture neighbor = new Architecture(this);
         Random random = new Random();
 
-       //System.out.printf("Width %s\tHeight %d\t %-18s\n", this.getWidth(), this.getHeight(), mutation);
+       System.out.printf("Width %s\tHeight %d\t %-18s\n", this.getWidth(), this.getHeight(), mutation);
 
         switch (mutation) {
             case ADD_ELECTRODE: {
-                int i = random.nextInt(this.inactiveElectrodes.size());
-                Electrode electrode = this.inactiveElectrodes.get(i);
-                this.addElectrode(electrode.getX(), electrode.getY());
+                int i = random.nextInt(neighbor.inactiveElectrodes.size());
+                Electrode electrode = neighbor.inactiveElectrodes.get(i);
+                neighbor.addElectrode(electrode.getX(), electrode.getY());
                 break;
             }
             case REMOVE_ELECTRODE: {
-                int i = random.nextInt(this.activeElectrodes.size());
-                Electrode electrode = this.activeElectrodes.get(i);
-                this.removeElectrode(electrode.getX(), electrode.getY());
+                int i = random.nextInt(neighbor.activeElectrodes.size());
+                Electrode electrode = neighbor.activeElectrodes.get(i);
+                neighbor.removeElectrode(electrode.getX(), electrode.getY());
                 break;
             }
             case ADD_COLUMN: {
