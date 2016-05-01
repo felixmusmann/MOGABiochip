@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class Synthesis {
@@ -9,16 +10,16 @@ public class Synthesis {
         ArrayList<Architecture> offspring = new ArrayList<>();
         offspring.add(arch.generateNeighbor());
 
-        for (int i = 0; i < 50; i = offspring.size()-1) {
+        for (int i = 0; i < 5000; i = offspring.size()-1) {
             Architecture neighbor = offspring.get(i).generateNeighbor();
-            if (neighbor.getWidth() > 0 && neighbor.getHeight() > 0) {
-               offspring.add(neighbor);
-            } else {
-                System.out.println("Generated fruitless offspring.");
-            }
+            offspring.add(neighbor);
         }
 
-        System.out.println(arch);
-        System.out.println(offspring.get(offspring.size()-1));
+        try {
+            parser.saveArchitecture(offspring.get(offspring.size()-1), "offspring.json");
+            System.out.println(offspring.get(offspring.size()-1));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

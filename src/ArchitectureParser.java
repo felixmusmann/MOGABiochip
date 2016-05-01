@@ -1,10 +1,10 @@
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
+import com.google.gson.stream.JsonWriter;
 import javafx.util.Pair;
 
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class ArchitectureParser {
@@ -25,9 +25,9 @@ public class ArchitectureParser {
 
             JsonArray inactiveElectrodesArray = archObject.get("inactiveElectrodes").getAsJsonArray();
             for (JsonElement element : inactiveElectrodesArray) {
-                JsonObject electrodeCoordinates = element.getAsJsonObject();
-                int x = electrodeCoordinates.get("x").getAsInt();
-                int y = electrodeCoordinates.get("y").getAsInt();
+                JsonArray electrodeCoordinates = element.getAsJsonArray();
+                int x = electrodeCoordinates.get(0).getAsInt();
+                int y = electrodeCoordinates.get(1).getAsInt();
                 inactiveElectrodes.add(new Pair<>(x, y));
             }
 
@@ -41,8 +41,32 @@ public class ArchitectureParser {
         }
     }
 
-    public void saveArchitecture(Architecture arch, String filename) {
-        // TODO: save architecture to json file
+    public void saveArchitecture(Architecture arch, String filename) throws IOException {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        FileWriter out = new FileWriter(filename);
+
+        JsonObject archObject = new JsonObject();
+        archObject.addProperty("width", arch.getWidth());
+        archObject.addProperty("height", arch.getHeight());
+
+        JsonArray inactiveElectrodeArray = new JsonArray();
+        for (Electrode inactiveElectrode : arch.getInactiveElectrodes()) {
+            JsonArray coordinates = new JsonArray();
+            coordinates.add(inactiveElectrode.getX());
+            coordinates.add(inactiveElectrode.getY());
+            inactiveElectrodeArray.add(coordinates);
+        }
+        archObject.add("inactiveElectrodes", inactiveElectrodeArray);
+
+        JsonArray deviceArray = new JsonArray();
+        for (Device device : arch.getDevices()) {
+            deviceArray.add(gson.toJsonTree(device));
+        }
+        archObject.add("devices", deviceArray);
+
+        out.write(gson.toJson(archObject));
+        out.flush();
+        out.close();
     }
 
     private ArrayList<Device> buildDevices(JsonArray deviceArray) {
@@ -59,16 +83,16 @@ public class ArchitectureParser {
             String typeInJson = deviceObject.get("type").getAsString();
             Device.Type type = null;
             switch (typeInJson) {
-                case "dispenserSample":
+                case "DISPENSER_SAMPLE":
                     type = Device.Type.DISPENSER_SAMPLE;
                     break;
-                case "dispenserBuffer":
+                case "DISPENSER_BUFFER":
                     type = Device.Type.DISPENSER_BUFFER;
                     break;
-                case "dispenserReagent":
+                case "DISPENSER_REAGENT":
                     type = Device.Type.DISPENSER_REAGENT;
                     break;
-                case "opticalDetector":
+                case "OPTICAL_DETECTOR":
                     type = Device.Type.OPTICAL_DETECTOR;
                     break;
             }
@@ -81,4 +105,6 @@ public class ArchitectureParser {
 
         return devices;
     }
+
+
 }

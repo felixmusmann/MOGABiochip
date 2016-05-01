@@ -1,11 +1,14 @@
 import javafx.util.Pair;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Random;
 
 public class Architecture {
 
-    private ArrayList<ArrayList<Electrode>> electrodes;
+    private ArrayList<ArrayList<Electrode>> electrodeGrid;
+    private ArrayList<Electrode> activeElectrodes;
+    private ArrayList<Electrode> inactiveElectrodes;
     private ArrayList<Device> devices;
 
     public enum Mutation {
@@ -22,19 +25,23 @@ public class Architecture {
 
     public Architecture(int width, int height, ArrayList<Pair<Integer, Integer>> inactiveElectrodes, ArrayList<Device> devices) {
         this.devices = devices;
-        this.electrodes = new ArrayList<>(width);
+        this.activeElectrodes = new ArrayList<>();
+        this.inactiveElectrodes = new ArrayList<>();
+        this.electrodeGrid = new ArrayList<>(width);
 
         for (int x = 0; x < width; x++) {
-            this.electrodes.add(x, new ArrayList<>(height));
+            this.electrodeGrid.add(x, new ArrayList<>(height));
             for (int y = 0; y < height; y++) {
-                this.electrodes.get(x).add(y, new Electrode(x, y));
+                Electrode electrode = new Electrode(x, y);
+                this.electrodeGrid.get(x).add(y, electrode);
+                this.activeElectrodes.add(electrode);
             }
         }
 
-        for (Pair<Integer, Integer> inactiveElectrode : inactiveElectrodes) {
-            int x = inactiveElectrode.getKey();
-            int y = inactiveElectrode.getValue();
-            electrodes.get(x).get(y).setActive(false);
+        for (Pair<Integer, Integer> inactiveElectrodeCoordinates : inactiveElectrodes) {
+            int x = inactiveElectrodeCoordinates.getKey();
+            int y = inactiveElectrodeCoordinates.getValue();
+            this.removeElectrode(x, y);
         }
     }
 
@@ -44,50 +51,84 @@ public class Architecture {
             this.devices.add(new Device(device));
         }
 
-        this.electrodes = new ArrayList<>();
+        this.activeElectrodes = new ArrayList<>();
+        this.inactiveElectrodes = new ArrayList<>();
+        this.electrodeGrid = new ArrayList<>();
         for (ArrayList<Electrode> column :
-                other.electrodes) {
+                other.electrodeGrid) {
             ArrayList<Electrode> columnCopy = new ArrayList<>();
-            for (Electrode electrode :
-                    column) {
-                columnCopy.add(new Electrode(electrode));
+            for (Electrode electrode : column) {
+                Electrode electrodeCopy = new Electrode(electrode);
+                columnCopy.add(electrodeCopy);
+                if (electrode.isActive()) {
+                    this.activeElectrodes.add(electrodeCopy);
+                } else {
+                    this.inactiveElectrodes.add(electrodeCopy);
+                }
             }
-            this.electrodes.add(columnCopy);
+            this.electrodeGrid.add(columnCopy);
         }
     }
 
     public int getWidth() {
-        return electrodes.size();
+        return electrodeGrid.size();
     }
 
     public int getHeight() {
-        if (electrodes.size() > 0) {
-            return electrodes.get(0).size();
+        if (electrodeGrid.size() > 0) {
+            return electrodeGrid.get(0).size();
         } else {
             return 0;
         }
     }
 
+    public ArrayList<Device> getDevices() {
+        return devices;
+    }
+
+    public ArrayList<Electrode> getInactiveElectrodes() {
+        return inactiveElectrodes;
+    }
+
     public Electrode getElectrode(int x, int y) {
-        return this.electrodes.get(x).get(y);
+        return this.electrodeGrid.get(x).get(y);
     }
 
-    public void addElectrode(int x, int y) {
-        this.getElectrode(x, y).setActive(true);
+    public boolean addElectrode(int x, int y) {
+        if (this.getElectrode(x, y).isActive()) {
+            return false;
+        } else {
+            Electrode electrode = this.getElectrode(x, y);
+            electrode.setActive(true);
+            activeElectrodes.add(electrode);
+            inactiveElectrodes.remove(electrode);
+            return true;
+        }
     }
 
-    public void removeElectrode(int x, int y) {
-        this.getElectrode(x, y).setActive(false);
+    public boolean removeElectrode(int x, int y) {
+        if (this.getElectrode(x, y).isActive()) {
+            Electrode electrode = this.getElectrode(x, y);
+            electrode.setActive(false);
+            activeElectrodes.remove(electrode);
+            inactiveElectrodes.add(electrode);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void addColumnOfElectrodes(int column) {
         ArrayList<Electrode> newColumn = new ArrayList<>(getHeight());
         for (int i = 0; i < getHeight(); i++) {
-            newColumn.add(i, new Electrode(column, i));
+            Electrode electrode = new Electrode(column, i);
+            this.activeElectrodes.add(electrode);
+            newColumn.add(i, electrode);
         }
 
-        this.electrodes.add(column, newColumn);
+        this.electrodeGrid.add(column, newColumn);
 
+        // Adjust x coordinates of electrodes to right of new column
         for (int x = column + 1; x < getWidth(); x++) {
             for (int y = 0; y < getHeight(); y++) {
                 this.getElectrode(x, y).setX(x);
@@ -96,7 +137,15 @@ public class Architecture {
     }
 
     public void removeColumnOfElectrodes(int column) {
-        electrodes.remove(column);
+        for (Electrode electrode : electrodeGrid.remove(column)) {
+            if (electrode.isActive()) {
+                this.activeElectrodes.remove(electrode);
+            } else {
+                this.inactiveElectrodes.remove(electrode);
+            }
+        }
+
+        // Adjust x coordinates of remaining electrodes to right of removed column
         for (int x = column; x < getWidth(); x++) {
             for (int y = 0; y < getHeight(); y++) {
                 this.getElectrode(x, y).setX(x);
@@ -106,7 +155,11 @@ public class Architecture {
 
     public void addRowOfElectrodes(int row) {
         for (int x = 0; x < getWidth(); x++) {
-            electrodes.get(x).add(row, new Electrode(x, row));
+            Electrode electrode = new Electrode(x, row);
+            this.activeElectrodes.add(electrode);
+            electrodeGrid.get(x).add(row, electrode);
+
+            // Adjust y coordinates of electrodes below new row
             for (int y = row + 1; y < getHeight(); y++) {
                 this.getElectrode(x, y).setY(y);
             }
@@ -115,53 +168,92 @@ public class Architecture {
 
     public void removeRowOfElectrodes(int row) {
         for (int x = 0; x < getWidth(); x++) {
-            electrodes.get(x).remove(row);
+            Electrode electrode = electrodeGrid.get(x).remove(row);
+            if (electrode.isActive()) {
+                this.activeElectrodes.remove(electrode);
+            } else {
+                this.inactiveElectrodes.remove(electrode);
+            }
         }
 
+        // Adjust y coordinates of remaining electrodes below removed row
         for (int x = 0; x < getWidth(); x++) {
             for (int y = row; y < getHeight(); y++) {
                 this.getElectrode(x, y).setY(y);
             }
         }
+
+        System.out.print("");
     }
 
     public Architecture generateNeighbor() {
-        Architecture neighbor = new Architecture(this);
         Mutation mutation = Mutation.getRandom();
-        Random random = new Random();
-        int x = -1;
-        int y = -1;
 
         switch (mutation) {
             case ADD_ELECTRODE:
-                x = random.nextInt(getWidth());
-                y = random.nextInt(getHeight());
-                neighbor.addElectrode(x, y);
-                break;
-            case REMOVE_ELECTRODE:
-                x = random.nextInt(getWidth());
-                y = random.nextInt(getHeight());
-                neighbor.removeElectrode(x, y);
-                break;
-            case ADD_COLUMN:
-                x = random.nextInt(getWidth()+1);
-                neighbor.addColumnOfElectrodes(x);
-                break;
-            case REMOVE_COLUMN:
-                x = random.nextInt(getWidth());
-                neighbor.removeColumnOfElectrodes(x);
-                break;
-            case ADD_ROW:
-                y = random.nextInt(getHeight()+1);
-                neighbor.addRowOfElectrodes(y);
-                break;
-            case REMOVE_ROW:
-                y = random.nextInt(getHeight());
-                neighbor.removeRowOfElectrodes(y);
-                break;
+                if (inactiveElectrodes.size() < 1) {
+                    return generateNeighbor();
+                }
+            case REMOVE_ELECTRODE: {
+                if (activeElectrodes.size() < 2) {
+                    return generateNeighbor();
+                }
+            }
+            case REMOVE_COLUMN: {
+                if (getWidth() < 2) {
+                    return generateNeighbor();
+                }
+            }
+            case REMOVE_ROW: {
+                if (getHeight() < 2) {
+                    return generateNeighbor();
+                }
+            }
         }
 
-        System.out.println("Neighbor generation: " + mutation + " x: "  + x + "y: " + y);
+        return generateNeighbor(mutation);
+    }
+
+    public Architecture generateNeighbor(Mutation mutation) {
+        Architecture neighbor = new Architecture(this);
+        Random random = new Random();
+
+       //System.out.printf("Width %s\tHeight %d\t %-18s\n", this.getWidth(), this.getHeight(), mutation);
+
+        switch (mutation) {
+            case ADD_ELECTRODE: {
+                int i = random.nextInt(this.inactiveElectrodes.size());
+                Electrode electrode = this.inactiveElectrodes.get(i);
+                this.addElectrode(electrode.getX(), electrode.getY());
+                break;
+            }
+            case REMOVE_ELECTRODE: {
+                int i = random.nextInt(this.activeElectrodes.size());
+                Electrode electrode = this.activeElectrodes.get(i);
+                this.removeElectrode(electrode.getX(), electrode.getY());
+                break;
+            }
+            case ADD_COLUMN: {
+                int x = random.nextInt(getWidth() + 1);
+                neighbor.addColumnOfElectrodes(x);
+                break;
+            }
+            case REMOVE_COLUMN: {
+                int x = random.nextInt(getWidth());
+                neighbor.removeColumnOfElectrodes(x);
+                break;
+            }
+            case ADD_ROW: {
+                int y = random.nextInt(getHeight() + 1);
+                neighbor.addRowOfElectrodes(y);
+                break;
+            }
+            case REMOVE_ROW: {
+                int y = random.nextInt(getHeight());
+                neighbor.removeRowOfElectrodes(y);
+                break;
+            }
+        }
 
         return neighbor;
     }
