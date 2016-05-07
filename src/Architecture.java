@@ -19,7 +19,12 @@ public class Architecture {
         private static final Random RANDOM = new Random();
 
         public static Mutation getRandom()  {
-            return VALUES[RANDOM.nextInt(SIZE)];
+            float weight = RANDOM.nextFloat();
+            if (weight < 0.4) {
+                return REMOVE_ELECTRODE;
+            } else {
+                return VALUES[RANDOM.nextInt(SIZE)];
+            }
         }
     }
 
@@ -136,16 +141,22 @@ public class Architecture {
     }
 
     public void removeColumnOfElectrodes(int column) {
-        for (Electrode electrode : electrodeGrid.remove(column)) {
-            if (electrode.isActive()) {
-                this.activeElectrodes.remove(electrode);
-            } else {
-                this.inactiveElectrodes.remove(electrode);
+        removeColumnOfElectrodes(column, column);
+    }
+
+    public void removeColumnOfElectrodes(int from, int to) {
+        for (int column = from; column <= to; column++) {
+            for (Electrode electrode : electrodeGrid.remove(from)) {
+                if (electrode.isActive()) {
+                    this.activeElectrodes.remove(electrode);
+                } else {
+                    this.inactiveElectrodes.remove(electrode);
+                }
             }
         }
 
         // Adjust x coordinates of remaining electrodes to right of removed column
-        for (int x = column; x < getWidth(); x++) {
+        for (int x = from; x < getWidth(); x++) {
             for (int y = 0; y < getHeight(); y++) {
                 this.getElectrode(x, y).setX(x);
             }
@@ -166,23 +177,72 @@ public class Architecture {
     }
 
     public void removeRowOfElectrodes(int row) {
+        removeRowOfElectrodes(row, row);
+    }
+
+    /**
+     * This method removes all rows of electrodes between the specified bounds
+     * on the architecture.
+     *
+     * @param from  lower bound of rows, which will be removed
+     * @param to    upper bound (included) of rows, which will be removed
+     */
+    public void removeRowOfElectrodes(int from, int to) {
         for (int x = 0; x < getWidth(); x++) {
-            Electrode electrode = electrodeGrid.get(x).remove(row);
-            if (electrode.isActive()) {
-                this.activeElectrodes.remove(electrode);
-            } else {
-                this.inactiveElectrodes.remove(electrode);
+            for (int row = from; row <= to; row++) {
+                Electrode electrode = electrodeGrid.get(x).remove(from);
+                if (electrode.isActive()) {
+                    this.activeElectrodes.remove(electrode);
+                } else {
+                    this.inactiveElectrodes.remove(electrode);
+                }
             }
         }
 
         // Adjust y coordinates of remaining electrodes below removed row
         for (int x = 0; x < getWidth(); x++) {
-            for (int y = row; y < getHeight(); y++) {
+            for (int y = from; y < getHeight(); y++) {
                 this.getElectrode(x, y).setY(y);
             }
         }
 
         System.out.print("");
+    }
+
+    /**
+     * This method splits the architecture at a given column and
+     * returns an array with two new architectures. At index 0 is the
+     * left-hand part of the architecture including the specified column,
+     * index 1 contains the right-hand part excluding the specified column.
+     *
+     * @param column   Column at which the architecture will be split.
+     * @return Array with two architectures, at index 0 left-hand part and index 1 right-hand part.
+     */
+    public Architecture[] splitAtColumn(int column) {
+        Architecture[] splitArchitectures = new Architecture[2];
+        splitArchitectures[0] = new Architecture(this);
+        splitArchitectures[0].removeColumnOfElectrodes(column + 1, splitArchitectures[0].getWidth()-1);
+        splitArchitectures[1] = new Architecture(this);
+        splitArchitectures[1].removeColumnOfElectrodes(0, column);
+        return splitArchitectures;
+    }
+
+    /**
+     * This method splits the architecture at a given row and
+     * returns an array with two new architectures. At index 0 is the
+     * upper part of the architecture including the specified row,
+     * index 1 contains the lower part excluding the specified row.
+     *
+     * @param row   Row at which the architecture will be split.
+     * @return Array with two architectures, at index 0 upper part and index 1 lower part.
+     */
+    public Architecture[] splitAtRow(int row) {
+        Architecture[] splitArchitectures = new Architecture[2];
+        splitArchitectures[0] = new Architecture(this);
+        splitArchitectures[0].removeRowOfElectrodes(row + 1, splitArchitectures[0].getHeight()-1);
+        splitArchitectures[1] = new Architecture(this);
+        splitArchitectures[1].removeRowOfElectrodes(0, row);
+        return splitArchitectures;
     }
 
     public Architecture generateNeighbor() {
@@ -217,7 +277,7 @@ public class Architecture {
         Architecture neighbor = new Architecture(this);
         Random random = new Random();
 
-       System.out.printf("Width %s\tHeight %d\t %-18s\n", this.getWidth(), this.getHeight(), mutation);
+       System.out.println(mutation);
 
         switch (mutation) {
             case ADD_ELECTRODE: {
