@@ -1,6 +1,5 @@
 import javafx.util.Pair;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -243,6 +242,63 @@ public class Architecture {
         splitArchitectures[1] = new Architecture(this);
         splitArchitectures[1].removeRowOfElectrodes(0, row);
         return splitArchitectures;
+    }
+
+    public static Architecture mergeHorizontal(Architecture first, Architecture second, int row, Alignment alignment) {
+        Architecture mergedArchitecture;
+        int width, height, secondRow;
+
+        if (alignment == Alignment.TOP) {
+            secondRow = 0;
+        } else if (alignment == Alignment.CENTER) {
+            secondRow = (int) Math.floor((second.getHeight() - 1) / 2);
+        } else if (alignment == Alignment.BOTTOM) {
+            secondRow = second.getHeight()-1;
+        } else {
+            throw new IllegalArgumentException("Alignment must be TOP, CENTER or BOTTOM.");
+        }
+
+        int firstYShift = Math.max(0, secondRow - row);
+        int secondYShift = Math.max(0, row - secondRow);
+
+        width = first.getWidth() + second.getWidth();
+        height = Math.max(row, secondRow) + Math.max(first.getHeight() - row, second.getHeight() - secondRow);
+
+        // Copy inactive electrodes
+        ArrayList<Pair<Integer, Integer>> inactiveElectrodes = new ArrayList<>();
+        for (Electrode electrode : first.getInactiveElectrodes()) {
+            int x = electrode.getX();
+            int y = electrode.getY() + firstYShift;
+            inactiveElectrodes.add(new Pair<>(x, y));
+        }
+
+        for (Electrode electrode : second.getInactiveElectrodes()) {
+            int x = electrode.getX() + first.getWidth();
+            int y = electrode.getY() + secondYShift;
+            inactiveElectrodes.add(new Pair<>(x, y));
+        }
+
+        // Set corner electrodes inactive
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                if (x < first.getWidth()) {
+                    if (y < firstYShift || y >= firstYShift + first.getHeight()) {
+                        inactiveElectrodes.add(new Pair<>(x, y));
+                    }
+                } else {
+                    if (y < secondYShift || y >= secondYShift + second.getHeight()) {
+                        inactiveElectrodes.add(new Pair<>(x, y));
+                    }
+                }
+            }
+        }
+
+
+        // TODO: merge devices
+
+        mergedArchitecture = new Architecture(width, height, inactiveElectrodes, null);
+
+        return mergedArchitecture;
     }
 
     public Architecture generateNeighbor() {
