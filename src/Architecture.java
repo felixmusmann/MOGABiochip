@@ -244,6 +244,60 @@ public class Architecture {
         return splitArchitectures;
     }
 
+    public static Architecture mergeVertical(Architecture first, Architecture second, int column, Alignment alignment) {
+        Architecture mergedArchitecture;
+        int width, height, secondColumn;
+
+        if (alignment == Alignment.LEFT) {
+            secondColumn = 0;
+        } else if (alignment == Alignment.CENTER) {
+            secondColumn = (int) Math.floor((second.getWidth() - 1) / 2);
+        } else if (alignment == Alignment.RIGHT) {
+            secondColumn = second.getWidth() - 1;
+        } else {
+            throw new IllegalArgumentException("Alignment must be LEFT, CENTER or RIGHT.");
+        }
+
+        int firstXShift = Math.max(0, secondColumn - column);
+        int secondXShift = Math.max(0, column - secondColumn);
+
+        width = Math.max(column, secondColumn) + Math.max(first.getWidth() - column, second.getWidth() - secondColumn);
+        height = first.getHeight() + second.getHeight();
+
+        // Copy inactive electrodes
+        ArrayList<Pair<Integer, Integer>> inactiveElectrodes = new ArrayList<>();
+        for (Electrode electrode : first.getInactiveElectrodes()) {
+            int x = electrode.getX() + firstXShift;
+            int y = electrode.getY();
+            inactiveElectrodes.add(new Pair<>(x, y));
+        }
+
+        for (Electrode electrode : second.getInactiveElectrodes()) {
+            int x = electrode.getX() + secondXShift;
+            int y = electrode.getY() + first.getHeight();
+            inactiveElectrodes.add(new Pair<>(x, y));
+        }
+
+        // Set corner electrodes inactive
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                if (y < first.getHeight()) {
+                    if (x < firstXShift || x >= firstXShift + first.getWidth()) {
+                        inactiveElectrodes.add(new Pair<>(x, y));
+                    }
+                } else {
+                    if (x < secondXShift || x >= secondXShift + second.getWidth()) {
+                        inactiveElectrodes.add(new Pair<>(x, y));
+                    }
+                }
+            }
+        }
+
+        mergedArchitecture = new Architecture(width, height, inactiveElectrodes, null);
+
+        return mergedArchitecture;
+    }
+
     public static Architecture mergeHorizontal(Architecture first, Architecture second, int row, Alignment alignment) {
         Architecture mergedArchitecture;
         int width, height, secondRow;
@@ -253,7 +307,7 @@ public class Architecture {
         } else if (alignment == Alignment.CENTER) {
             secondRow = (int) Math.floor((second.getHeight() - 1) / 2);
         } else if (alignment == Alignment.BOTTOM) {
-            secondRow = second.getHeight()-1;
+            secondRow = second.getHeight() - 1;
         } else {
             throw new IllegalArgumentException("Alignment must be TOP, CENTER or BOTTOM.");
         }
