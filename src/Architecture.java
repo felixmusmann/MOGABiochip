@@ -121,6 +121,12 @@ public class Architecture {
         }
     }
 
+    /**
+     * This method adds a full column of active electrodes to the architecture
+     * at the specified index. The existing column will be moved to the right.
+     *
+     * @param column    index of row at which the electrodes will be inserted
+     */
     public void addColumnOfElectrodes(int column) {
         ArrayList<Electrode> newColumn = new ArrayList<>(getHeight());
         for (int i = 0; i < getHeight(); i++) {
@@ -139,10 +145,22 @@ public class Architecture {
         }
     }
 
+    /**
+     * This method removes a single column of electrodes on the architecture.
+     *
+     * @param column   index of column, which will be removed
+     */
     public void removeColumnOfElectrodes(int column) {
         removeColumnOfElectrodes(column, column);
     }
 
+    /**
+     * This method removes all columns of electrodes between the specified bounds
+     * on the architecture.
+     *
+     * @param from  left bound of rows, which will be removed
+     * @param to    right bound (included) of rows, which will be removed
+     */
     public void removeColumnOfElectrodes(int from, int to) {
         for (int column = from; column <= to; column++) {
             for (Electrode electrode : electrodeGrid.remove(from)) {
@@ -162,6 +180,12 @@ public class Architecture {
         }
     }
 
+    /**
+     * This method adds a full row of active electrodes to the architecture
+     * at the specified index. The existing rows will be moved downwards.
+     *
+     * @param row   index of row at which the electrodes will be inserted
+     */
     public void addRowOfElectrodes(int row) {
         for (int x = 0; x < getWidth(); x++) {
             Electrode electrode = new Electrode(x, row);
@@ -175,6 +199,11 @@ public class Architecture {
         }
     }
 
+    /**
+     * This method removes a single row of electrodes on the architecture.
+     *
+     * @param row   index of row, which will be removed
+     */
     public void removeRowOfElectrodes(int row) {
         removeRowOfElectrodes(row, row);
     }
@@ -244,6 +273,18 @@ public class Architecture {
         return splitArchitectures;
     }
 
+    /**
+     * This method merges two architectures vertically.
+     * The first architecture will be positioned at the top and the second below.
+     * The specified column of the first architecture will be aligned according
+     * to the alignment option of the second architecture.
+     *
+     * @param first     top architecture
+     * @param second    bottom architecture
+     * @param column    column of the first architecture for alignment
+     * @param alignment alignment option for second architecture
+     * @return new merged Architecture
+     */
     public static Architecture mergeVertical(Architecture first, Architecture second, int column, Alignment alignment) {
         Architecture mergedArchitecture;
         int width, height, secondColumn;
@@ -293,11 +334,25 @@ public class Architecture {
             }
         }
 
+        // TODO: merge devices
+
         mergedArchitecture = new Architecture(width, height, inactiveElectrodes, null);
 
         return mergedArchitecture;
     }
 
+    /**
+     * This method merges two architectures horizontally.
+     * The first architecture will be positioned at the left-hand side and the second to the right-hand side.
+     * The specified row of the first architecture will be aligned according
+     * to the alignment option of the second architecture.
+     *
+     * @param first     left-hand architecture
+     * @param second    right-hand architecture
+     * @param row       row of the first architecture for alignment
+     * @param alignment alignment option for second architecture
+     * @return new merged Architecture
+     */
     public static Architecture mergeHorizontal(Architecture first, Architecture second, int row, Alignment alignment) {
         Architecture mergedArchitecture;
         int width, height, secondRow;
@@ -355,6 +410,13 @@ public class Architecture {
         return mergedArchitecture;
     }
 
+    /**
+     * This method generates a random neighbor of the architecture.
+     * Possible mutations are adding or removing of a single electrode,
+     * row or column.
+     *
+     * @return neighbor with random mutation
+     */
     public Architecture generateNeighbor() {
         Mutation mutation = Mutation.getRandom();
 
@@ -383,6 +445,12 @@ public class Architecture {
         return generateNeighbor(mutation);
     }
 
+    /**
+     * This method generates a random neighbor with a specific mutation.
+     *
+     * @param mutation  mutation that will be applied to architecture
+     * @return neighbor with specific mutation
+     */
     public Architecture generateNeighbor(Mutation mutation) {
         Architecture neighbor = new Architecture(this);
         Random random = new Random();
