@@ -1,8 +1,11 @@
 public class Electrode {
 
     private boolean active;
+
     private int x;
     private int y;
+
+    private Device linkedDevice;
 
     public Electrode(int x, int y) {
         this.x = x;
@@ -33,11 +36,27 @@ public class Electrode {
     }
 
     public int getX() {
-
         return x;
     }
 
     public void setX(int x) {
         this.x = x;
+    }
+
+    public void setLinkedDevice(Device linkedDevice) {
+        if (linkedDevice == null) {
+            this.linkedDevice = null;
+        } else {
+            this.linkedDevice = linkedDevice;
+        }
+
+    }
+
+    public Device getLinkedDevice() {
+        return linkedDevice;
+    }
+
+    public boolean isBlocked() {
+        return linkedDevice != null;
     }
 }

@@ -84,9 +84,29 @@ public class Architecture {
             return 0;
         }
     }
+    
+    public float getCost() {
+        // TODO: calculate cost
+        float costDevices = 0;
+        for (Device device :
+                this.devices) {
+            costDevices += device.getCost();
+        }
+        return this.activeElectrodes.size() + costDevices;
+    }
 
     public ArrayList<Device> getDevices() {
         return devices;
+    }
+
+    public boolean addDevice(Device device, int x, int y) {
+        // TODO: add device
+        return false;
+    }
+
+    public boolean removeDevice(Device device) {
+        // TODO: remove device
+        return false;
     }
 
     public ArrayList<Electrode> getInactiveElectrodes() {
@@ -98,27 +118,33 @@ public class Architecture {
     }
 
     public boolean addElectrode(int x, int y) {
-        if (this.getElectrode(x, y).isActive()) {
-            return false;
-        } else {
+        boolean isInBounds = x < this.getWidth() && y < this.getHeight();
+        boolean isAddable = !this.getElectrode(x, y).isActive() && !this.getElectrode(x, y).isBlocked();
+
+        if (isInBounds && isAddable) {
             Electrode electrode = this.getElectrode(x, y);
             electrode.setActive(true);
             activeElectrodes.add(electrode);
             inactiveElectrodes.remove(electrode);
             return true;
         }
+
+        return false;
     }
 
     public boolean removeElectrode(int x, int y) {
-        if (this.getElectrode(x, y).isActive()) {
+        boolean isInBounds = x < this.getWidth() && y < this.getHeight();
+        boolean isRemovable = this.getElectrode(x, y).isActive() && !this.getElectrode(x, y).isBlocked();
+
+        if (isInBounds && isRemovable) {
             Electrode electrode = this.getElectrode(x, y);
             electrode.setActive(false);
             activeElectrodes.remove(electrode);
             inactiveElectrodes.add(electrode);
             return true;
-        } else {
-            return false;
         }
+
+        return false;
     }
 
     /**

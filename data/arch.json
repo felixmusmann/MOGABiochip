@@ -6,37 +6,57 @@
     {
       "type": "DISPENSER_SAMPLE",
       "id": 0,
+      "x": 0,
+      "y": 0,
       "executionTime": 7,
+      "cost": 4,
       "shape": {
-        "width": 0,
-        "height": 7
+        "width": 1,
+        "height": 1,
+        "snapX": 0,
+        "snapY": 0
       }
     },
     {
       "type": "DISPENSER_BUFFER",
       "id": 0,
+      "x": 0,
+      "y": 0,
       "executionTime": 7,
+      "cost": 4,
       "shape": {
-        "width": 0,
-        "height": 7
+        "width": 1,
+        "height": 1,
+        "snapX": 0,
+        "snapY": 0
       }
     },
     {
       "type": "DISPENSER_REAGENT",
       "id": 0,
+      "x": 0,
+      "y": 0,
       "executionTime": 7,
+      "cost": 4,
       "shape": {
         "width": 1,
-        "height": 2
+        "height": 1,
+        "snapX": 0,
+        "snapY": 0
       }
     },
     {
       "type": "OPTICAL_DETECTOR",
       "id": 1,
-      "executionTime": 4,
+      "x": 0,
+      "y": 0,
+      "executionTime": 30,
+      "cost": 4,
       "shape": {
         "width": 1,
-        "height": 30
+        "height": 1,
+        "snapX": 0,
+        "snapY": 0
       }
     }
   ]

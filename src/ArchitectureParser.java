@@ -76,9 +76,10 @@ public class ArchitectureParser {
             JsonObject deviceObject = deviceArray.get(i).getAsJsonObject();
 
             int id = deviceObject.get("id").getAsInt();
-            // int x = deviceObject.get("x").getAsInt();
-            // int y = deviceObject.get("y").getAsInt();
+            int x = deviceObject.get("x").getAsInt();
+            int y = deviceObject.get("y").getAsInt();
             int executionTime = deviceObject.get("executionTime").getAsInt();
+            int cost = deviceObject.get("cost").getAsInt();
 
             String typeInJson = deviceObject.get("type").getAsString();
             Device.Type type = null;
@@ -97,10 +98,15 @@ public class ArchitectureParser {
                     break;
             }
 
+            // Parse shape
             JsonObject shapeObject = deviceObject.get("shape").getAsJsonObject();
-            Shape shape = new Shape(shapeObject.get("width").getAsInt(), shapeObject.get("height").getAsInt());
+            int shapeWidth = shapeObject.get("width").getAsInt();
+            int shapeHeight = shapeObject.get("height").getAsInt();
+            int snapX = shapeObject.get("snapX").getAsInt();
+            int snapY = shapeObject.get("snapY").getAsInt();
+            Shape shape = new Shape(shapeWidth, shapeHeight, snapX, snapY);
 
-            devices.add(new Device(type, id, executionTime, shape));
+            devices.add(new Device(type, id, x, y, executionTime, cost, shape));
         }
 
         return devices;
