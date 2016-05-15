@@ -1,25 +1,36 @@
-public class Device {
+public class Device extends CellStructure {
 
     public enum Type {
         DISPENSER_SAMPLE, DISPENSER_BUFFER, DISPENSER_REAGENT, OPTICAL_DETECTOR
     }
 
     private Type type;
+
     private int id;
     private int x;
     private int y;
     private int executionTime;
     private int cost;
-    private Shape shape;
 
-    // TODO: representation as mini-arch?
+    private DeviceCell startCell;
 
     public Device(Type type, int id, int executionTime, int cost, Shape shape) {
+        super(shape.getWidth(), shape.getHeight());
         this.type = type;
         this.id = id;
         this.executionTime = executionTime;
         this.cost = cost;
-        this.shape = shape;
+
+        // fill with device cells
+        for (int x = 0; x < getWidth(); x++) {
+            for (int y = 0; y < getHeight(); y++) {
+                DeviceCell deviceCell = new DeviceCell(x, y, this);
+                setCell(x, y, deviceCell);
+            }
+        }
+
+        startCell = (DeviceCell) getCell(shape.getStartX(), shape.getStartY());
+        startCell.setStartCell(true);
     }
 
     public Device(Type type, int id, int x, int y, int executionTime, int cost, Shape shape) {
@@ -29,30 +40,63 @@ public class Device {
     }
 
     public Device(Device other) {
+        super(other.getWidth(), other.getHeight());
+
+        // fill with device cells
+        for (int x = 0; x < getWidth(); x++) {
+            for (int y = 0; y < getHeight(); y++) {
+                DeviceCell cell = new DeviceCell(x, y, this);
+                if (((DeviceCell) other.getCell(x, y)).isStartCell()) {
+                    cell.setStartCell(true);
+                    startCell = cell;
+                }
+                setCell(x, y, cell);
+            }
+        }
+
         this.type = other.type;
         this.id = other.id;
         this.x = other.x;
         this.y = other.y;
-        this.executionTime = other.id;
+        this.executionTime = other.executionTime;
         this.cost = other.cost;
-        this.shape = new Shape(other.shape);
+    }
+
+    public void resetDevice() {
+        x = 0;
+        y = 0;
+
+        for (int x = 0; x < getWidth(); x++) {
+            for (int y = 0; y < getHeight(); y++) {
+                getCell(x, y).setX(x).setY(y);
+            }
+        }
     }
 
     public Type getType() {
         return type;
     }
 
+    public Device setX(int x) {
+        this.x = x;
+        return this;
+    }
+
     public int getX() {
         return x;
+    }
+
+    public Device setY(int y) {
+        this.y = y;
+        return this;
     }
 
     public int getY() {
         return y;
     }
 
-    public void setLocation(int x, int y) {
-        this.x = x;
-        this.y = y;
+    public DeviceCell getStartCell() {
+        return startCell;
     }
 
     public int getId() {
@@ -65,9 +109,5 @@ public class Device {
 
     public int getCost() {
         return cost;
-    }
-
-    public Shape getShape() {
-        return shape;
     }
 }

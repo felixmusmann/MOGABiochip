@@ -1,5 +1,4 @@
 import com.google.gson.*;
-import com.google.gson.stream.JsonWriter;
 import javafx.util.Pair;
 
 import java.io.FileReader;
@@ -9,7 +8,7 @@ import java.util.ArrayList;
 
 public class ArchitectureParser {
 
-    public Architecture readArchitecture(String path) {
+    public Biochip readBiochip(String path) {
         int width;
         int height;
         ArrayList<Pair<Integer, Integer>> inactiveElectrodes = new ArrayList<>();
@@ -34,14 +33,14 @@ public class ArchitectureParser {
             JsonArray deviceArray = archObject.get("devices").getAsJsonArray();
             devices = buildDevices(deviceArray);
 
-            return new Architecture(width, height, inactiveElectrodes, devices);
+            return new Biochip(width, height, inactiveElectrodes, devices);
         } catch (Exception exception) {
             exception.printStackTrace();
             return null;
         }
     }
 
-    public void saveArchitecture(Architecture arch, String filename) throws IOException {
+    public void saveBiochip(Biochip arch, String filename) throws IOException {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         FileWriter out = new FileWriter(filename);
 
@@ -50,18 +49,19 @@ public class ArchitectureParser {
         archObject.addProperty("height", arch.getHeight());
 
         JsonArray inactiveElectrodeArray = new JsonArray();
-        for (Electrode inactiveElectrode : arch.getInactiveElectrodes()) {
+        for (Pair<Integer, Integer> freeCell : arch.getFreeCells()) {
             JsonArray coordinates = new JsonArray();
-            coordinates.add(inactiveElectrode.getX());
-            coordinates.add(inactiveElectrode.getY());
+            coordinates.add(freeCell.getKey());
+            coordinates.add(freeCell.getValue());
             inactiveElectrodeArray.add(coordinates);
         }
         archObject.add("inactiveElectrodes", inactiveElectrodeArray);
 
         JsonArray deviceArray = new JsonArray();
-        for (Device device : arch.getDevices()) {
+        // TODO: save devices
+        /*for (Device device : arch.getDevices()) {
             deviceArray.add(gson.toJsonTree(device));
-        }
+        }*/
         archObject.add("devices", deviceArray);
 
         out.write(gson.toJson(archObject));
@@ -102,9 +102,9 @@ public class ArchitectureParser {
             JsonObject shapeObject = deviceObject.get("shape").getAsJsonObject();
             int shapeWidth = shapeObject.get("width").getAsInt();
             int shapeHeight = shapeObject.get("height").getAsInt();
-            int snapX = shapeObject.get("snapX").getAsInt();
-            int snapY = shapeObject.get("snapY").getAsInt();
-            Shape shape = new Shape(shapeWidth, shapeHeight, snapX, snapY);
+            int startX = shapeObject.get("startX").getAsInt();
+            int startY = shapeObject.get("startY").getAsInt();
+            Shape shape = new Shape(shapeWidth, shapeHeight, startX, startY);
 
             devices.add(new Device(type, id, x, y, executionTime, cost, shape));
         }

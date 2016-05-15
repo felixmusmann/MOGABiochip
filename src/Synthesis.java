@@ -4,27 +4,28 @@ public class Synthesis {
 
     public static void main(String[] args) {
         ArchitectureParser parser = new ArchitectureParser();
-        Architecture arch = parser.readArchitecture("data/arch.json");
+        Biochip arch = parser.readBiochip("data/simpleArch.json");
 
         System.out.println("## Original architecture\n" + arch);
-        waitForEnter();
+        //waitForEnter();
 
-        System.out.println("## Split architectures at row 3");
-        Architecture[] splitArchsV = arch.splitAtRow(3);
-        System.out.println("# Upper part\n" + splitArchsV[0]);
-        System.out.println("# Lower part\n" + splitArchsV[1]);
-        waitForEnter();
+        Biochip[] chips = arch.splitAtRow(2);
+        System.out.println(chips[0]);
+        System.out.println(chips[1]);
 
-        System.out.println("## Split architectures at column 5");
-        Architecture[] splitArchsH = arch.splitAtColumn(5);
-        System.out.println("# Left-hand part\n" + splitArchsH[0]);
-        System.out.println("# Right-hand part\n" + splitArchsH[1]);
-        waitForEnter();
+        System.out.println("####");
+        System.out.println(Biochip.mergeVertical(chips[0], chips[1], 0, 9));
+        System.out.println("####");
 
-        System.out.println("# Merge vertically\n" + Architecture.mergeVertical(splitArchsH[0], splitArchsV[1], 3, Alignment.LEFT));
-        waitForEnter();
+        System.out.println("####");
+        System.out.println(Biochip.mergeHorizontal(chips[0], chips[1], 0, 3));
+        System.out.println("####");
 
-        System.out.println("# Merge horizontally\n" + Architecture.mergeHorizontal(splitArchsV[1], splitArchsH[0], 0, Alignment.CENTER));
+        try {
+            parser.saveBiochip(chips[1], "data/test.json");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
 //        try {
 //            Thread.sleep(1000);
@@ -43,7 +44,7 @@ public class Synthesis {
 //        }
 //
 //        try {
-//            parser.saveArchitecture(arch, "offspring.json");
+//            parser.saveBiochip(arch, "offspring.json");
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //        }

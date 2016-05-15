@@ -1,62 +1,19 @@
-public class Electrode {
-
-    private boolean active;
-
-    private int x;
-    private int y;
-
-    private Device linkedDevice;
+public class Electrode extends Cell {
 
     public Electrode(int x, int y) {
-        this.x = x;
-        this.y = y;
-        this.active = true;
+        super(x, y, false);
     }
 
     public Electrode(Electrode other) {
-        this.x = other.x;
-        this.y = other.y;
-        this.active = other.active;
+        super(other.getX(), other.getY(), other.isBlocked());
     }
 
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public void setY(int y) {
-        this.y = y;
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public void setLinkedDevice(Device linkedDevice) {
-        if (linkedDevice == null) {
-            this.linkedDevice = null;
+    @Override
+    public String toString() {
+        if (isBlocked()) {
+            return super.toString();
         } else {
-            this.linkedDevice = linkedDevice;
+            return "X ";
         }
-
-    }
-
-    public Device getLinkedDevice() {
-        return linkedDevice;
-    }
-
-    public boolean isBlocked() {
-        return linkedDevice != null;
     }
 }

@@ -26,11 +26,11 @@ public class Shape {
         return height;
     }
 
-    public int getSnapX() {
+    public int getStartX() {
         return snapX;
     }
 
-    public int getSnapY() {
+    public int getStartY() {
         return snapY;
     }
 }
