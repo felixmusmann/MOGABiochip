@@ -99,6 +99,7 @@ public abstract class CellStructure {
     private void updateCoordinates(int fromX, int fromY) {
         for (int x = fromX; x < getWidth(); x++) {
             for (int y = fromY; y < getHeight(); y++) {
+                // TODO: update coordinates of devices, here or in Device?
                 Cell cell = getCell(x, y);
                 if (cell != null) {
                     cell.setX(x).setY(y);
@@ -106,6 +107,8 @@ public abstract class CellStructure {
             }
         }
     }
+
+
 
     public boolean horizontalRangeCheck(int x) {
         return x >= 0 && x < getWidth();

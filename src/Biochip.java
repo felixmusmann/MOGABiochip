@@ -105,25 +105,15 @@ public class Biochip extends CellStructure {
         int upperBound = startY - device.getStartCell().getY();
         int lowerBound = device.getHeight()  - device.getStartCell().getY() + startY;
 
-        // increase size if bounds not in area
-        if (leftBound < 0 || rightBound >= getWidth()) {
-            // TODO: merge device horizontal
-            return;
-        } else if (upperBound < 0 || lowerBound >= getHeight()) {
-            // TODO: merge device vertical
-            return;
-        }
 
-        // check if area is in bounds
-        boolean isInBounds = horizontalRangeCheck(leftBound) && horizontalRangeCheck(rightBound - 1)
-                    && verticalRangeCheck(upperBound) && verticalRangeCheck(lowerBound - 1);
-        if (!isInBounds) {
-            throw new IndexOutOfBoundsException();
-        }
+        int iterLeftBound = Math.max(0, leftBound);
+        int iterRightBound = Math.min(getWidth(), rightBound);
+        int iterUpperBound = Math.max(0, upperBound);
+        int iterLowerBound = Math.min(getHeight(), lowerBound);
 
         // check area for other devices
-        for (int x = leftBound; x < rightBound; x++) {
-            for (int y = upperBound; y < lowerBound; y++) {
+        for (int x = iterLeftBound; x < iterRightBound; x++) {
+            for (int y = iterUpperBound; y < iterLowerBound; y++) {
                 if (getCell(x, y) instanceof DeviceCell) {
                     throw new UnsupportedOperationException("There is another device in the area.");
                 }
@@ -131,10 +121,31 @@ public class Biochip extends CellStructure {
         }
 
         // remove electrodes in area
-        for (int x = leftBound; x < rightBound; x++) {
-            for (int y = upperBound; y < lowerBound; y++) {
+        for (int x = iterLeftBound; x < iterRightBound; x++) {
+            for (int y = iterUpperBound; y < iterLowerBound; y++) {
                 removeElectrode(x, y);
             }
+        }
+
+        // increase size of biochip if insufficient
+        while (leftBound < 0) {
+            addColumn(0);
+            leftBound++;
+            rightBound++;
+        }
+
+        while (upperBound < 0) {
+            addRow(0);
+            upperBound++;
+            lowerBound++;
+        }
+
+        while (rightBound > getWidth()) {
+            addColumn(getWidth());
+        }
+
+        while (lowerBound > getHeight()) {
+            addRow(getHeight());
         }
 
         // add device
@@ -375,7 +386,8 @@ public class Biochip extends CellStructure {
         }
 
         mergedBiochip.insertCellStructure(secondXShift, first.getHeight(), secondCopy);
-        mergedBiochip.getDevices().addAll(secondCopy.getDevices());
+        mergedBiochip.devices.addAll(secondCopy.devices);
+        mergedBiochip.electrodes.addAll(secondCopy.electrodes);
 
         return mergedBiochip;
     }
@@ -414,7 +426,8 @@ public class Biochip extends CellStructure {
         }
 
         mergedBiochip.insertCellStructure(first.getWidth(), secondYShift, secondCopy);
-        mergedBiochip.getDevices().addAll(secondCopy.getDevices());
+        mergedBiochip.devices.addAll(secondCopy.devices);
+        mergedBiochip.electrodes.addAll(secondCopy.electrodes);
 
         return mergedBiochip;
     }
@@ -501,5 +514,16 @@ public class Biochip extends CellStructure {
         }
 
         return neighbor;
+    }
+
+    @Override
+    public String toString() {
+        String out = super.toString();
+        out += "Width: " + getWidth() + "\n";
+        out += "Height: " + getHeight() + "\n";
+        out += "Free cells: " + getFreeCells().size() + "\n";
+        out += "Electrodes: " + electrodes.size() + "\n";
+        out += "Devices: " + devices.size() + "\n";
+        return out;
     }
 }
