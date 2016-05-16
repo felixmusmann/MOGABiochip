@@ -13,8 +13,8 @@
       "shape": {
         "width": 1,
         "height": 1,
-        "snapX": 0,
-        "snapY": 0
+        "startX": 0,
+        "startY": 0
       }
     },
     {
@@ -27,8 +27,8 @@
       "shape": {
         "width": 1,
         "height": 1,
-        "snapX": 0,
-        "snapY": 0
+        "startX": 0,
+        "startY": 0
       }
     },
     {
@@ -41,8 +41,8 @@
       "shape": {
         "width": 1,
         "height": 1,
-        "snapX": 0,
-        "snapY": 0
+        "startX": 0,
+        "startY": 0
       }
     },
     {
@@ -55,8 +55,8 @@
       "shape": {
         "width": 1,
         "height": 1,
-        "snapX": 0,
-        "snapY": 0
+        "startX": 0,
+        "startY": 0
       }
     }
   ]

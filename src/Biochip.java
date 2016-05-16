@@ -517,13 +517,23 @@ public class Biochip extends CellStructure {
     }
 
     @Override
+    void updateOperations() {
+        for (Device device : devices) {
+            Cell cell = device.getCell(0, 0);
+            device.setX(cell.getX());
+            device.setY(cell.getY());
+        }
+    }
+
+    @Override
     public String toString() {
         String out = super.toString();
-        out += "Width: " + getWidth() + "\n";
-        out += "Height: " + getHeight() + "\n";
-        out += "Free cells: " + getFreeCells().size() + "\n";
-        out += "Electrodes: " + electrodes.size() + "\n";
-        out += "Devices: " + devices.size() + "\n";
+        out += "Cost\t\t" + getCost() + "\n";
+        out += "Width\t\t" + getWidth() + "\n";
+        out += "Height\t\t" + getHeight() + "\n";
+        out += "Free cells\t" + getFreeCells().size() + "\n";
+        out += "Electrodes\t" + electrodes.size() + "\n";
+        out += "Devices\t\t" + devices.size() + "\n";
         return out;
     }
 }

@@ -110,4 +110,7 @@ public class Device extends CellStructure {
     public int getCost() {
         return cost;
     }
+
+    @Override
+    void updateOperations() {}
 }

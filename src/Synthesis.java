@@ -1,10 +1,12 @@
 import java.io.IOException;
+import java.util.HashMap;
 
 public class Synthesis {
 
     public static void main(String[] args) {
         ArchitectureParser parser = new ArchitectureParser();
         Biochip arch = parser.readBiochip("data/simpleArch.json");
+        HashMap<Integer, Device> library = parser.readDeviceLibrary("data/devices.json");
 
         System.out.println("## Original architecture\n" + arch);
         //waitForEnter();
@@ -21,11 +23,10 @@ public class Synthesis {
         System.out.println(Biochip.mergeHorizontal(chips[0], chips[1], 0, 3));
         System.out.println("####");
 
-        try {
-            parser.saveBiochip(chips[1], "data/test.json");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Device test = new Device(Device.Type.DISPENSER_SAMPLE, 1234, 12, 5, new Shape(7, 3, 6, 2));
+        arch.addDevice(test, 9, 2);
+        System.out.println(arch);
+
 
 //        try {
 //            Thread.sleep(1000);

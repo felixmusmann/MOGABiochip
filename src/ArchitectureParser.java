@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ArchitectureParser {
 
@@ -67,6 +68,26 @@ public class ArchitectureParser {
         out.write(gson.toJson(archObject));
         out.flush();
         out.close();
+    }
+
+    public HashMap<Integer, Device> readDeviceLibrary(String path) {
+        HashMap<Integer, Device> deviceLibrary = new HashMap<>();
+
+        try {
+            final JsonParser parser = new JsonParser();
+            final JsonElement jsonElement = parser.parse(new FileReader(path));
+            final JsonArray jsonDevices = jsonElement.getAsJsonArray();
+
+            ArrayList<Device> deviceArrayList = buildDevices(jsonDevices);
+            for (Device device : deviceArrayList) {
+                deviceLibrary.put(device.getId(), device);
+            }
+
+            return deviceLibrary;
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return null;
+        }
     }
 
     private ArrayList<Device> buildDevices(JsonArray deviceArray) {
