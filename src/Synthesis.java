@@ -1,5 +1,3 @@
-import org.uma.jmetal.algorithm.multiobjective.nsgaii.NSGAII;
-
 import java.io.IOException;
 import java.util.HashMap;
 

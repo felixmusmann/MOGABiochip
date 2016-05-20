@@ -1,0 +1,21 @@
+{
+  "width": 10,
+  "height": 10,
+  "inactiveElectrodes": [[0, 0], [1, 5]],
+  "devices": [
+    {
+      "type": "DISPENSER_SAMPLE",
+      "id": 0,
+      "x": 4,
+      "y": 4,
+      "executionTime": 7,
+      "cost": 4,
+      "shape": {
+        "width": 2,
+        "height": 2,
+        "startX": 1,
+        "startY": 1
+      }
+    }
+  ]
+}
