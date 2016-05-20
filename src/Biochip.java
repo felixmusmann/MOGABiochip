@@ -1,6 +1,5 @@
 import javafx.util.Pair;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.HashSet;
@@ -38,14 +37,18 @@ public class Biochip extends CellStructure {
             }
         }
 
-        for (Pair<Integer, Integer> inactiveElectrodeCoordinates : inactiveElectrodes) {
-            int x = inactiveElectrodeCoordinates.getKey();
-            int y = inactiveElectrodeCoordinates.getValue();
-            removeElectrode(x, y);
+        if (inactiveElectrodes != null) {
+            for (Pair<Integer, Integer> inactiveElectrodeCoordinates : inactiveElectrodes) {
+                int x = inactiveElectrodeCoordinates.getKey();
+                int y = inactiveElectrodeCoordinates.getValue();
+                removeElectrode(x, y);
+            }
         }
 
-        for (Device device : devices) {
-            addDevice(device, device.getX(), device.getY());
+        if (devices != null) {
+            for (Device device : devices) {
+                addDevice(device, device.getX(), device.getY());
+            }
         }
     }
 
@@ -61,6 +64,11 @@ public class Biochip extends CellStructure {
         for (Electrode electrode : other.electrodes) {
             addElectrode(electrode.getX(), electrode.getY());
         }
+    }
+
+    public double getExecutionTime() {
+        // TODO: just mockup so far
+        return 10 + (getWidth() * getHeight()) / (electrodes.size()+1);
     }
 
     public float getCost() {
@@ -477,6 +485,8 @@ public class Biochip extends CellStructure {
         Biochip neighbor = new Biochip(this);
         Random random = new Random();
 
+        //System.out.println(mutation);
+
         switch (mutation) {
             case ADD_ELECTRODE: {
                 ArrayList<Pair<Integer, Integer>> freeCells = neighbor.getFreeCells();
@@ -529,6 +539,7 @@ public class Biochip extends CellStructure {
     public String toString() {
         String out = super.toString();
         out += "Cost\t\t" + getCost() + "\n";
+        out += "Exec. time\t" + getExecutionTime() + "\n";
         out += "Width\t\t" + getWidth() + "\n";
         out += "Height\t\t" + getHeight() + "\n";
         out += "Free cells\t" + getFreeCells().size() + "\n";

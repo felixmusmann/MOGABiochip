@@ -2,6 +2,8 @@ import javafx.util.Pair;
 
 import java.util.ArrayList;
 
+// TODO: manipulation of width and height should not be possible on device -> move to biochip
+
 public abstract class CellStructure {
 
     private int width;
