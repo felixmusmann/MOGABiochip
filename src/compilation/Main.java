@@ -1,5 +1,5 @@
-/* @@ JETC journal - Architecture Synthesis using placement of Circular-route modules*/
 package compilation;
+/* @@ JETC journal - Architecture Synthesis using placement of Circular-route modules*/ 
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -53,25 +53,24 @@ public class Main {
 		Main.DEADLINE = (int)deadline; 
 		//IOhandler.writeToLog( Calendar.getInstance().getTime().toString() + " *** Running " + appName.toUpperCase()); //TEST
 
+	}  
+	
+	public static double compile(Arch inputArch, String appFile, String libFile, double deadline, int minWindow, int maxWindow, int minRadius, int maxRadius ) throws IOException{
 		/* Initialize the ARCHITECTURE, the GRAPH and the MODULE LIBRARY*/
-		Arch inputArch = new Arch("mock");
 		DirectedGraph graph = new DirectedGraph(appFile);
 		ModuleLibrary mLib = new ModuleLibrary(libFile);  // DO I need this for anything? 
-
 		
-		System.out.println("Input architecture: " + inputArch.toString()); 
-		
-		
-		System.out.println("Completion time is: " + ""); 
+		//System.out.println("Completion time is: " + "");
 		
 		/* Create the CRM library*/
 		CRMSyn synCRM = new CRMSyn(inputArch.biochip); 
 		CRMLibrary libCRM = new CRMLibrary();
-		synCRM.placer.makeCRMLibrary(inputArch.biochip, libCRM, window, window, radius, radius);
+		synCRM.placer.makeCRMLibrary(inputArch.biochip, libCRM, minWindow, maxWindow, minRadius, maxRadius);
 		libCRM.mergeLib(); 
 		
 		LSPR LS = new LSPR(); 
 		double sched_time = LS.LSSynthWRouting_CRM(inputArch.toBiochip(), mLib, libCRM, graph, deadline);
 		
+		return sched_time; 
 	}
 }

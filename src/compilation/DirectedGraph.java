@@ -1,12 +1,11 @@
 /* @@ JETC journal - Architecture Synthesis using placement of Circular-route modules*/
 package compilation;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.ListIterator;
@@ -14,18 +13,18 @@ import java.util.Scanner;
 
 public class DirectedGraph {
 	
-	ArrayList<Node> nodes = new ArrayList<>();
-	ArrayList<Edge> edges = new ArrayList<>();
+	ArrayList<Node> nodes = new ArrayList<Node>(); 
+	ArrayList<Edge> edges = new ArrayList<Edge>(); 
 	
 	public DirectedGraph(){
-		nodes = new ArrayList<>();
-		edges = new ArrayList<>();
+		nodes = new ArrayList<Node>(); 
+		edges = new ArrayList<Edge>(); 
 	}
 	
 	/** Creates a new DirectedGraph object that is a copy of the argument.*/
 	public DirectedGraph(DirectedGraph g){
-		this.nodes = new ArrayList<>(g.size());
-		this.edges = new ArrayList<>(g.edges.size());
+		this.nodes = new ArrayList<Node>(g.size());
+		this.edges = new ArrayList<Edge>(g.edges.size()); 
 		for (int i = 0; i<g.nodes.size(); i++){
 			this.nodes.add(new Node(g.nodes.get(i))); 
 		}
@@ -72,48 +71,6 @@ public class DirectedGraph {
 			   	e.printStackTrace();
 		}
 		s.close();
-	}
-
-	public static DirectedGraph readFromJson(String path) throws FileNotFoundException {
-		DirectedGraph graph = new DirectedGraph();
-
-        JsonParser jsonParser = new JsonParser();
-		JsonObject rootObject = jsonParser.parse(new FileReader(path)).getAsJsonObject();
-        JsonObject graphJson = rootObject.getAsJsonObject("graph");
-        JsonArray nodesJson = graphJson.getAsJsonArray("nodes");
-        JsonArray edgesJson = graphJson.getAsJsonArray("edges");
-
-        // Add nodes to graph
-        for (JsonElement element : nodesJson) {
-            JsonObject nodeJson = element.getAsJsonObject();
-            String name = nodeJson.get("label").getAsString();
-            String super_type = nodeJson.get("type").getAsString();
-            String type = super_type;
-            if (super_type.equalsIgnoreCase("in")) {
-                type = nodeJson.getAsJsonObject("metadata").get("subtype").getAsString();
-            }
-
-            graph.nodes.add(new Node(
-                    new Operation(
-                            new StringBuffer(super_type),
-                            new StringBuffer(type),
-                            new StringBuffer(name)
-                    )
-            ));
-        }
-
-        // Connect nodes with edges
-        for (JsonElement element : edgesJson) {
-            JsonObject edgeJson = element.getAsJsonObject();
-            String source = edgeJson.get("source").getAsString();
-            String target = edgeJson.get("target").getAsString();
-
-            Node sourceNode = graph.getNode(new StringBuffer(source));
-            Node targetNode = graph.getNode(new StringBuffer(target));
-            graph.addEdge(sourceNode, targetNode);
-        }
-
-        return graph;
 	}
 	
 	/** Inserts node n in the graph after node loc (between loc and its successors). */

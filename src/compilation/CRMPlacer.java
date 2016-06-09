@@ -1,5 +1,6 @@
-/* @@ JETC journal - Architecture Synthesis using placement of Circular-route modules*/ 
 package compilation;
+
+/* @@ JETC journal - Architecture Synthesis using placement of Circular-route modules*/ 
 
 import java.util.ArrayList;
 import java.util.Collections;

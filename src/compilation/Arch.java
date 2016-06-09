@@ -1,5 +1,4 @@
 package compilation;
-
 import java.io.FileReader;
 import java.util.ArrayList;
 
@@ -7,6 +6,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+
+import javafx.util.Pair;
 
 public class Arch{ 
 	int n_disB; 
@@ -16,44 +17,53 @@ public class Arch{
 
 	Biochip biochip;
 
-	ArrayList<Device> dev;
+	ArrayList<Device> dev; 
+	
+	public Arch (int width, int height, ArrayList<Pair<Integer,Integer>> coordinates, ArrayList<Device> dev){
+		  this.biochip = new Biochip(width,height) ;
+		  for (Pair<Integer, Integer> element : coordinates) {
+              int x = element.getKey(); 
+              int y = element.getValue(); 
+              this.biochip.cells.get(y*width + x).isActive = false; 
+          }
+		  this.dev = dev;
+	}
 	
 	 public Arch (String json_file) {
-		int width;
-		int height;
-		try {
-			final JsonParser parser = new JsonParser();
-			final JsonElement jsonElement = parser.parse(new FileReader(json_file));
-			final JsonObject archObject = jsonElement.getAsJsonObject();
+		    int width; 
+		    int height; 
+	        try {
+	            final JsonParser parser = new JsonParser();
+	            final JsonElement jsonElement = parser.parse(new FileReader(json_file));
+	            final JsonObject archObject = jsonElement.getAsJsonObject();
 
-			width = archObject.get("width").getAsInt();
-			height = archObject.get("height").getAsInt();
-			this.biochip = new Biochip(width,height) ;
+	            width = archObject.get("width").getAsInt(); 
+	            height = archObject.get("height").getAsInt(); 
+	            this.biochip = new Biochip(width,height) ;
+	           
+	            JsonArray inactiveElectrodesArray = archObject.get("inactiveElectrodes").getAsJsonArray();
+	            for (JsonElement element : inactiveElectrodesArray) {
+	                JsonArray electrodeCoordinates = element.getAsJsonArray();
+	                int x = electrodeCoordinates.get(0).getAsInt();
+	                int y = electrodeCoordinates.get(1).getAsInt();
+	                this.biochip.cells.get(y*width + x).isActive = false; 
+	            }
+	            this.dev = new ArrayList<Device>();
+	            JsonArray deviceArray = archObject.get("devices").getAsJsonArray();
+	            for (int i = 0; i < deviceArray.size(); i++) {
+	                JsonObject deviceObject = deviceArray.get(i).getAsJsonObject();
 
-			JsonArray inactiveElectrodesArray = archObject.get("inactiveElectrodes").getAsJsonArray();
-			for (JsonElement element : inactiveElectrodesArray) {
-				JsonArray electrodeCoordinates = element.getAsJsonArray();
-				int x = electrodeCoordinates.get(0).getAsInt();
-				int y = electrodeCoordinates.get(1).getAsInt();
-				this.biochip.cells.get(y*width + x).isActive = false;
-			}
-
-			this.dev = new ArrayList<>();
-			JsonArray deviceArray = archObject.get("devices").getAsJsonArray();
-			for (int i = 0; i < deviceArray.size(); i++) {
-				JsonObject deviceObject = deviceArray.get(i).getAsJsonObject();
-
-				int id = deviceObject.get("id").getAsInt();
-				int x = deviceObject.get("x").getAsInt();
-				int y = deviceObject.get("y").getAsInt();
-				int executionTime = deviceObject.get("executionTime").getAsInt();
-				String type = deviceObject.get("type").getAsString();
-				this.dev.add(new Device (Integer.toString(id), type, x, y, executionTime, 1));
-			}
-		} catch (Exception exception) {
-			exception.printStackTrace();
-		}
-	 }
+	                int id = deviceObject.get("id").getAsInt();
+	                int x = deviceObject.get("x").getAsInt();
+	                int y = deviceObject.get("y").getAsInt();
+	                int executionTime = deviceObject.get("executionTime").getAsInt();
+	                String type = deviceObject.get("type").getAsString();
+	                this.dev.add(new Device (Integer.toString(id), type, x, y, executionTime, 1)); 
+	            }
+	        } catch (Exception exception) {
+	            exception.printStackTrace();
+	        }
+	    }
 
 	public Arch(Arch new_arch){
 		this.biochip= new Biochip(new_arch.biochip.width, new_arch.biochip.height);
@@ -135,9 +145,9 @@ public class Arch{
 
 		return b; 
 	}
-
-	public Biochip getBiochip() {
-		return biochip;
+	
+	public Biochip getBiochip(){
+		return this.biochip; 
 	}
 
 	public int cost(){
