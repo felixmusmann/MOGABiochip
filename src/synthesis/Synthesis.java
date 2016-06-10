@@ -16,6 +16,9 @@ public class Synthesis {
     private static final boolean DEMO_MODE = false;
 
     public static void main(String[] args) {
+        String fileName = "test%dbla";
+        int count = 1;
+        System.out.println(String.format(fileName, count));
 
 //        Biochip arch = JSONParser.readBiochip("data/simpleArch.json");
 //        HashMap<Integer, Device> library = parser.readDeviceLibrary("data/devices.json");

@@ -3,17 +3,13 @@ package synthesis;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.util.solutionattribute.impl.NumberOfViolatedConstraints;
 import org.uma.jmetal.util.solutionattribute.impl.OverallConstraintViolation;
-import synthesis.model.Biochip;
-import synthesis.model.Cell;
 import synthesis.model.Device;
 import synthesis.model.Electrode;
 
 import java.io.FileNotFoundException;
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -86,7 +82,7 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
         solution.setObjective(1, solution.getExecutionTime(pathToApp, pathToLib, deadline, window, window, radius, radius));
         duration = System.currentTimeMillis() - startTime;
         if (duration > 300) {
-            LOGGER.severe("Calculated execution time in " + duration + " ms\n" + solution);
+            LOGGER.warning("Calculated execution time in " + duration + " ms\n" + solution);
         } else {
             LOGGER.info("Calculated execution time in " + duration + " ms");
         }
@@ -218,7 +214,7 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
 
         long duration = System.currentTimeMillis() - startTime;
         LOGGER.info("Created solution " + duration + " ms");
-        InfoLogger.incrementSolutions(1);
+        LogTool.incrementGeneratedArchitectures(1);
         return solution;
     }
 

@@ -66,7 +66,7 @@ public class BiochipCrossover implements CrossoverOperator<BiochipSolution> {
         mergedBiochip = Biochip.mergeVertical(first, second, columnFirst, columnSecond);
         offspring.add(new BiochipSolution(mergedBiochip));
 
-        InfoLogger.incrementSolutions(2);
+        LogTool.incrementGeneratedArchitectures(2);
         return offspring;
     }
 }
