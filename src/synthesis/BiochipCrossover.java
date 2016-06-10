@@ -6,8 +6,11 @@ import synthesis.model.Biochip;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Logger;
 
 public class BiochipCrossover implements CrossoverOperator<BiochipSolution> {
+
+    private static final Logger LOGGER = Logger.getGlobal();
 
     @Override
     public List<BiochipSolution> execute(List<BiochipSolution> biochips) {
@@ -21,6 +24,7 @@ public class BiochipCrossover implements CrossoverOperator<BiochipSolution> {
 
             if (biochip.getWidth() < 2) {
                 if (biochip.getHeight() < 2) {
+                    LOGGER.severe("Biochip too small to split.");
                     continue;
                 } else {
                     decider = 1;
@@ -40,19 +44,29 @@ public class BiochipCrossover implements CrossoverOperator<BiochipSolution> {
             }
         }
 
-        for (int i = 0; i < splitBiochips.size() - 1; i++) {
-            int rowFirst = rnd.nextInt(splitBiochips.get(i)[0].getHeight());
-            int rowSecond = rnd.nextInt(splitBiochips.get(i+1)[1].getHeight());
-            BiochipSolution mergedBiochip = new BiochipSolution(Biochip.mergeHorizontal(splitBiochips.get(i)[0], splitBiochips.get(i+1)[1], rowFirst, rowSecond));
-            offspring.add(mergedBiochip);
+        // Do crossovers
+        int decider;
+        Biochip first, second;
 
-            int columnFirst = rnd.nextInt(splitBiochips.get(i)[0].getWidth());
-            int columnSecond = rnd.nextInt(splitBiochips.get(i+1)[1].getWidth());
-            mergedBiochip = new BiochipSolution(Biochip.mergeVertical(splitBiochips.get(i)[0], splitBiochips.get(i+1)[1], columnFirst, columnSecond));
-            offspring.add(mergedBiochip);
-            InfoLogger.incrementSolutions(2);
-        }
+        // First crossover horizontal
+        decider = rnd.nextInt(2);
+        first = splitBiochips.get(0)[decider];
+        second = splitBiochips.get(1)[1 - decider];
+        int rowFirst = rnd.nextInt(first.getHeight());
+        int rowSecond = rnd.nextInt(second.getHeight());
+        Biochip mergedBiochip = Biochip.mergeHorizontal(first, second, rowFirst, rowSecond);
+        offspring.add(new BiochipSolution(mergedBiochip));
 
+        // Second crossover vertical
+        decider = rnd.nextInt(2);
+        first = splitBiochips.get(0)[1 - decider];
+        second = splitBiochips.get(1)[decider];
+        int columnFirst = rnd.nextInt(first.getWidth());
+        int columnSecond = rnd.nextInt(second.getWidth());
+        mergedBiochip = Biochip.mergeVertical(first, second, columnFirst, columnSecond);
+        offspring.add(new BiochipSolution(mergedBiochip));
+
+        InfoLogger.incrementSolutions(2);
         return offspring;
     }
 }
