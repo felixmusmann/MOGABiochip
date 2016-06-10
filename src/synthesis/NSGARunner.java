@@ -17,15 +17,16 @@ import java.util.logging.Logger;
 public class NSGARunner extends AbstractAlgorithmRunner {
 
     public static void main(String[] args) {
+        // Arguments: iterations population mutationRate minWidth minHeight app lib devices
         // Configuration
-        String pathToApp = "data/input/graph10.txt";
-        String pathToLib = "data/input/TS_lib.txt";
-        String pathToDevices = "data/input/devices.json";
-        int minWidth = 5;
-        int minHeight = 5;
-        double mutationRate = 0.7;
-        int maxIterations = 10;
-        int populationSize = 20; // must be an even number
+        int maxIterations = Integer.valueOf(args[0]);
+        int populationSize = Integer.valueOf(args[1]); // must be an even number
+        double mutationRate = Double.valueOf(args[2]);
+        int minWidth = Integer.valueOf(args[3]);
+        int minHeight = Integer.valueOf(args[4]);
+        String pathToApp = args[5];
+        String pathToLib = args[6];
+        String pathToDevices = args[7];
 
         // Read graph and create library of devices
         DeviceLibrary deviceLibrary = JSONParser.readDeviceLibrary(pathToDevices);
