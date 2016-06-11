@@ -1,0 +1,13 @@
+node 1 O1 MIX mix
+node 2 O2 MIX mix
+node 3 O3 MIX mix
+node 4 O4 MIX mix
+node 5 O5 MIX mix
+node 6 O6 MIX mix
+node 7 O7 MIX mix
+ 	edge M1 O1 O5
+	edge M2 O2 O5
+	edge M3 O3 O6
+	edge M4 O4 O6
+	edge M5 O5 O7
+	edge M6 O6 O7

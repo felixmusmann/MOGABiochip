@@ -1,0 +1,37 @@
+   node 1 O1 IN disB
+   node 2 O2 IN disS
+   node 3 O3 IN disB
+   node 4 O4 IN disR
+   node 5 O5 IN disR
+   node 6 O6 IN disR
+   node 7 O7 IN disB
+   node 8 O8 IN disR
+   node 9 O9 IN disS
+   node 10 O10 IN disS
+   node 11 O11 MIX mix
+   node 12 O12 MIX mix
+   node 13 O13 MIX mix
+   node 14 O14 MIX mix
+   node 15 O15 MIX mix
+   node 16 O16 MIX mix
+   node 17 O17 MIX mix
+   node 18 O18 MIX mix
+   node 19 O19 MIX mix
+	   edge M1 O1 O16
+	   edge M2 O2 O16
+	   edge M4 O3 O12   
+	   edge M1 O4 O12
+	   edge M3 O5 O17
+	   edge M4 O16 O17
+	   edge M2 O6 O14
+	   edge M3 O12 O14
+	   edge M1 O9 O15
+	   edge M2 O14 O15
+	   edge M4 O15 O18
+	   edge M1 O17 O18
+	   edge M4 O7 O11
+	   edge M1 O8 O11
+	   edge M1 O11 O13
+	   edge M3 O10 O13
+	   edge M4 O13 O19
+	   edge M3 O18 O19

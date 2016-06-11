@@ -1,0 +1,37 @@
+node 1 O1 IN disS
+node 2 O2 IN disR
+node 3 O3 IN disS
+node 4 O4 IN disR
+node 5 O5 IN disB
+node 6 O6 IN disR
+node 7 O7 MIX mix
+node 8 O8 MIX mix
+node 9 O9 MIX mix
+node 10 O10 DILUTION dilution
+node 11 O11 IN disB
+node 12 O12 DILUTION dilution
+node 13 O13 IN disB
+node 14 O14 DILUTION dilution
+node 15 O15 IN disB
+node 16 O16 OPT opt
+node 17 O17 OPT opt
+node 18 O18 DILUTION dilution
+node 19 O19 IN disB
+node 20 O20 OPT opt
+edge M1 O1 O7
+edge M2 O2 O7
+edge M3 O3 O8
+edge M4 O4 O8
+edge M5 O5 O9
+edge M6 O6 O9
+edge M7 O7 O10
+edge M8 O11 O10
+edge M9 O8 O12
+edge M10 O13 O12
+edge M11 O9 O14
+edge M12 O15 O14
+edge M13 O10 O16
+edge M14 O12 O17
+edge M15 O14 O18
+edge M16 O19 O18
+edge M17 O18 O20
