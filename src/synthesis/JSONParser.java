@@ -11,40 +11,48 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class JSONParser {
 
-    public static Biochip readBiochip(String path) {
+    public static List<Biochip> readBiochip(String path) throws FileNotFoundException {
+        final JsonParser parser = new JsonParser();
+        final JsonElement jsonElement = parser.parse(new FileReader(path));
+        List<Biochip> biochips = new ArrayList<>();
+
+        if (jsonElement.isJsonArray()) {
+            for (JsonElement biochip : jsonElement.getAsJsonArray()) {
+                biochips.add(buildBiochip(biochip.getAsJsonObject()));
+            }
+        } else if (jsonElement.isJsonObject()) {
+            biochips.add(buildBiochip(jsonElement.getAsJsonObject()));
+        }
+
+        return biochips;
+    }
+
+    public static Biochip buildBiochip(JsonObject archObject) {
         int width;
         int height;
         ArrayList<Pair<Integer, Integer>> inactiveElectrodes = new ArrayList<>();
         ArrayList<Device> devices;
 
-        try {
-            final JsonParser parser = new JsonParser();
-            final JsonElement jsonElement = parser.parse(new FileReader(path));
-            final JsonObject archObject = jsonElement.getAsJsonObject();
+        width = archObject.get("width").getAsInt();
+        height = archObject.get("height").getAsInt();
 
-            width = archObject.get("width").getAsInt();
-            height = archObject.get("height").getAsInt();
-
-            JsonArray inactiveElectrodesArray = archObject.get("inactiveElectrodes").getAsJsonArray();
-            for (JsonElement element : inactiveElectrodesArray) {
-                JsonArray electrodeCoordinates = element.getAsJsonArray();
-                int x = electrodeCoordinates.get(0).getAsInt();
-                int y = electrodeCoordinates.get(1).getAsInt();
-                inactiveElectrodes.add(new Pair<>(x, y));
-            }
-
-            JsonArray deviceArray = archObject.get("devices").getAsJsonArray();
-            devices = buildDevices(deviceArray);
-
-            return new Biochip(width, height, inactiveElectrodes, devices);
-        } catch (Exception exception) {
-            exception.printStackTrace();
-            return null;
+        JsonArray inactiveElectrodesArray = archObject.get("inactiveElectrodes").getAsJsonArray();
+        for (JsonElement element : inactiveElectrodesArray) {
+            JsonArray electrodeCoordinates = element.getAsJsonArray();
+            int x = electrodeCoordinates.get(0).getAsInt();
+            int y = electrodeCoordinates.get(1).getAsInt();
+            inactiveElectrodes.add(new Pair<>(x, y));
         }
+
+        JsonArray deviceArray = archObject.get("devices").getAsJsonArray();
+        devices = buildDevices(deviceArray);
+
+        return new Biochip(width, height, inactiveElectrodes, devices);
     }
 
     public static void saveBiochip(Biochip arch, String filename) throws IOException {
