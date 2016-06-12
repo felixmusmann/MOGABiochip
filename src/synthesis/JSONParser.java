@@ -73,10 +73,22 @@ public class JSONParser {
         archObject.add("inactiveElectrodes", inactiveElectrodeArray);
 
         JsonArray deviceArray = new JsonArray();
-        // TODO: save devices
-        /*for (synthesis.model.Device device : arch.getDevices()) {
+        for (synthesis.model.Device device : arch.getDevices()) {
+            JsonObject deviceJson = new JsonObject();
+            JsonObject shapeJson = new JsonObject();
+            deviceJson.addProperty("type", device.getType());
+            deviceJson.addProperty("id", device.getId());
+            deviceJson.addProperty("x", device.getX());
+            deviceJson.addProperty("y", device.getY());
+            deviceJson.addProperty("cost", device.getCost());
+            deviceJson.addProperty("executionTime", device.getExecutionTime()); // TODO: prevent recalculation
+            shapeJson.addProperty("width", device.getWidth());
+            shapeJson.addProperty("height", device.getHeight());
+            shapeJson.addProperty("startX", device.getStartCell().getX());
+            shapeJson.addProperty("startY", device.getStartCell().getY());
+            deviceJson.add("shape", shapeJson);
             deviceArray.add(gson.toJsonTree(device));
-        }*/
+        }
         archObject.add("devices", deviceArray);
 
         out.write(gson.toJson(archObject));
