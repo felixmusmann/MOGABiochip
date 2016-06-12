@@ -1,6 +1,4 @@
-package synthesis;
-
-import synthesis.model.Device;
+package synthesis.model;
 
 import java.util.*;
 
@@ -27,7 +25,7 @@ public class DeviceLibrary {
         if (mapByType.containsKey(device.getType())) {
             mapByType.get(device.getType()).add(device);
         } else {
-            mapByType.put(device.getType(), new ArrayList<>());
+            mapByType.put(device.getType(), new ArrayList<Device>());
             mapByType.get(device.getType()).add(device);
         }
 

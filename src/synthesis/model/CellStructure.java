@@ -1,6 +1,6 @@
 package synthesis.model;
 
-import javafx.util.Pair;
+import synthesis.Pair;
 
 import java.util.ArrayList;
 
@@ -20,7 +20,7 @@ public abstract class CellStructure {
 
         cells = new ArrayList<>(width);
         for (int x = 0; x < width; x++) {
-            cells.add(x, new ArrayList<>(height));
+            cells.add(x, new ArrayList<Cell>(height));
             for (int y = 0; y < height; y++) {
                 cells.get(x).add(null);
             }
@@ -62,7 +62,7 @@ public abstract class CellStructure {
     }
 
     public void addColumn(int x) {
-        cells.add(x, new ArrayList<>());
+        cells.add(x, new ArrayList<Cell>());
         for (int y = 0; y < getHeight(); y++) {
             cells.get(x).add(null);
         }

@@ -6,8 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
-import javafx.util.Pair;
+import synthesis.Pair;
 
 public class Arch{ 
 	int n_disB; 
@@ -22,8 +21,8 @@ public class Arch{
 	public Arch (int width, int height, ArrayList<Pair<Integer,Integer>> coordinates, ArrayList<Device> dev){
 		  this.biochip = new Biochip(width,height) ;
 		  for (Pair<Integer, Integer> element : coordinates) {
-              int x = element.getKey(); 
-              int y = element.getValue(); 
+              int x = element.fst;
+              int y = element.snd;
               this.biochip.cells.get(y*width + x).isActive = false; 
           }
 		  this.dev = dev;

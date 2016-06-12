@@ -375,7 +375,7 @@ public class LSPR {
 		biochip.clean(); 
 		for (int i=0; i<biochip.devices.size(); i++){
 			biochip.devices.get(i).stop_t = 0 - biochip.devices.get(i).time; 
-			System.out.println("Dev " + biochip.devices.get(i).toString()); 
+			//System.out.println("Dev " + biochip.devices.get(i).toString());
 		}
 	}
 	

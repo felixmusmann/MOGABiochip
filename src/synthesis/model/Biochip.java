@@ -1,14 +1,11 @@
 package synthesis.model;
 
 import compilation.Arch;
-import javafx.util.Pair;
+import synthesis.Pair;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 public class Biochip extends CellStructure {
 
@@ -28,8 +25,8 @@ public class Biochip extends CellStructure {
 
         if (inactiveElectrodes != null) {
             for (Pair<Integer, Integer> inactiveElectrodeCoordinates : inactiveElectrodes) {
-                int x = inactiveElectrodeCoordinates.getKey();
-                int y = inactiveElectrodeCoordinates.getValue();
+                int x = inactiveElectrodeCoordinates.fst;
+                int y = inactiveElectrodeCoordinates.snd;
                 removeElectrode(x, y);
             }
         }
@@ -72,11 +69,13 @@ public class Biochip extends CellStructure {
         ArrayList<compilation.Device> dev = new ArrayList<>(devices.size());
         for (Device device : devices) {
             String name = String.valueOf(device.getId());
-            String type = device.getType().toString();
+            String type = device.getType();
             int devWidth = device.getWidth();
             int devHeight = device.getHeight();
             int executionTime = device.getExecutionTime();
-            dev.add(new compilation.Device(name, type, devWidth, devHeight, executionTime));
+            int startX = device.getStartCell().getX();
+            int startY = device.getStartCell().getY();
+            dev.add(new compilation.Device(name, type, devWidth, devHeight, executionTime, startX, startY));
         }
 
         return new Arch(width, height, inactiveElectrodes, dev);
@@ -92,7 +91,6 @@ public class Biochip extends CellStructure {
     }
 
     public float getCost() {
-        // TODO: calculate cost
         float costDevices = 0;
         for (Device device : devices) {
             costDevices += device.getCost();
@@ -103,6 +101,10 @@ public class Biochip extends CellStructure {
 
     public boolean isConnected() {
         // TODO: connectivity only checks electrodes not devices
+        if (electrodes.size() < 1) {
+            return false;
+        }
+
         ArrayList<Electrode> visitedElectrodes = new ArrayList<>();
         Electrode electrode = electrodes.get(0);
         checkConnectivity(electrode, visitedElectrodes);

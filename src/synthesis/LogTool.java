@@ -31,7 +31,7 @@ public class LogTool {
 
     // solutions
     private static int generatedArchitecturesCount;
-    private static List<BiochipSolution> solutions;
+    private static BiochipSolution[] solutions;
 
     public static void initializeLogger(Level logLevel, String logFile) throws IOException {
         final String path = "data/logs/";
@@ -92,7 +92,7 @@ public class LogTool {
         sessionResults.add("config", config);
 
         sessionResults.addProperty("generated-architectures-count", generatedArchitecturesCount);
-        sessionResults.addProperty("result-count", solutions.size());
+        sessionResults.addProperty("result-count", solutions.length);
 
         JsonArray results = new JsonArray();
         for (BiochipSolution solution : solutions) {
@@ -149,10 +149,10 @@ public class LogTool {
     }
 
     public static void setSolutions(List<BiochipSolution> solutions) {
-        LogTool.solutions = new ArrayList<>(solutions.size());
-        LogTool.solutions.addAll(solutions);
+        LogTool.solutions = new BiochipSolution[solutions.size()];
+        solutions.toArray(LogTool.solutions);
         // sort by cost in ascending order
-        LogTool.solutions.sort(new Comparator<BiochipSolution>() {
+        Arrays.sort(LogTool.solutions, new Comparator<BiochipSolution>() {
             @Override
             public int compare(BiochipSolution o1, BiochipSolution o2) {
                 if (o1.getObjective(0) < o2.getObjective(0)) {

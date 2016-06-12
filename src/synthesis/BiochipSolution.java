@@ -1,6 +1,5 @@
 package synthesis;
 
-import javafx.util.Pair;
 import org.uma.jmetal.solution.DoubleSolution;
 import synthesis.model.Biochip;
 import synthesis.model.Device;
@@ -94,13 +93,5 @@ public class BiochipSolution extends Biochip implements DoubleSolution {
     @Override
     public Object getAttribute(Object id) {
         return attributes.get(id);
-    }
-
-    @Override
-    public String toString() {
-        String out = super.toString();
-        out += "Cost\t\t" + getObjective(0) + "\n";
-        out += "Exec. time\t" + getObjective(1) + "\n";
-        return out;
     }
 }

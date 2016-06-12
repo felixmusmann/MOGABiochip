@@ -2,25 +2,25 @@
 <!DOCTYPE log SYSTEM "logger.dtd">
 <log>
 <record>
-  <date>2016-06-03T17:27:03</date>
-  <millis>1464967623923</millis>
+  <date>2016-06-07T09:37:04</date>
+  <millis>1465285024411</millis>
   <sequence>0</sequence>
   <logger>jMetal</logger>
   <level>INFO</level>
   <class>synthesis.NSGARunner</class>
   <method>main</method>
   <thread>1</thread>
-  <message>Total execution time: 67981ms</message>
+  <message>Total execution time: 161465ms</message>
 </record>
 <record>
-  <date>2016-06-03T17:27:03</date>
-  <millis>1464967623951</millis>
+  <date>2016-06-07T09:37:04</date>
+  <millis>1465285024446</millis>
   <sequence>1</sequence>
   <logger>jMetal</logger>
   <level>INFO</level>
   <class>synthesis.NSGARunner</class>
   <method>main</method>
   <thread>1</thread>
-  <message>Population size: 16</message>
+  <message>Population size: 4</message>
 </record>
 </log>

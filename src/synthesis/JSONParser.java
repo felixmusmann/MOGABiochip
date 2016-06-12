@@ -1,9 +1,9 @@
 package synthesis;
 
 import com.google.gson.*;
-import javafx.util.Pair;
 import synthesis.model.Biochip;
 import synthesis.model.Device;
+import synthesis.model.DeviceLibrary;
 import synthesis.model.Shape;
 
 import java.io.FileNotFoundException;
@@ -11,7 +11,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Scanner;
 
 public class JSONParser {
@@ -59,8 +58,8 @@ public class JSONParser {
         JsonArray inactiveElectrodeArray = new JsonArray();
         for (Pair<Integer, Integer> freeCell : arch.getFreeCells()) {
             JsonArray coordinates = new JsonArray();
-            coordinates.add(freeCell.getKey());
-            coordinates.add(freeCell.getValue());
+            coordinates.add(freeCell.fst);
+            coordinates.add(freeCell.snd);
             inactiveElectrodeArray.add(coordinates);
         }
         archObject.add("inactiveElectrodes", inactiveElectrodeArray);
@@ -105,8 +104,8 @@ public class JSONParser {
         int cost = device.get("cost").getAsInt();
 
         String type = device.get("type").getAsString();
-        if (device.has("fluid")) {
-            type += device.get("fluid").getAsString();
+        if (device.has("metadata") && device.get("metadata").getAsJsonObject().has("fluid")) {
+            type += device.get("metadata").getAsJsonObject().get("fluid").getAsString();
         }
 
         // Parse shape

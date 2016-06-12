@@ -1,13 +1,11 @@
 package synthesis;
 
-import javafx.util.Pair;
 import org.uma.jmetal.operator.MutationOperator;
 import synthesis.model.Biochip;
-import synthesis.model.Device;
+import synthesis.model.DeviceLibrary;
 import synthesis.model.Electrode;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -104,7 +102,7 @@ public class BiochipMutation implements MutationOperator<BiochipSolution> {
                 ArrayList<Pair<Integer, Integer>> freeCells = biochip.getFreeCells();
                 int i = random.nextInt(freeCells.size());
                 Pair<Integer, Integer> coordinates = freeCells.get(i);
-                biochip.addElectrode(coordinates.getKey(), coordinates.getValue());
+                biochip.addElectrode(coordinates.fst, coordinates.snd);
                 break;
             }
             case REMOVE_ELECTRODE: {

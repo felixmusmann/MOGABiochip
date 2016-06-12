@@ -7,12 +7,10 @@ import org.uma.jmetal.operator.MutationOperator;
 import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.runner.AbstractAlgorithmRunner;
 import org.uma.jmetal.util.AlgorithmRunner;
+import synthesis.model.DeviceLibrary;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class NSGARunner extends AbstractAlgorithmRunner {
 
@@ -33,7 +31,7 @@ public class NSGARunner extends AbstractAlgorithmRunner {
 
         // Initialize logger
         try {
-            LogTool.initializeLogger(Level.WARNING, pathToApp);
+            LogTool.initializeLogger(Level.OFF, pathToApp);
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException("Problem with creating log file: " + pathToApp);
@@ -44,7 +42,7 @@ public class NSGARunner extends AbstractAlgorithmRunner {
         // Define NSGA II
         Problem<BiochipSolution> problem = new SynthesisProblem(minWidth, minHeight, pathToApp, pathToLib, deviceLibrary);
         CrossoverOperator<BiochipSolution> crossover = new BiochipCrossover();
-        MutationOperator<BiochipSolution> mutation = new BiochipMutation(mutationRate, null, null);
+        MutationOperator<BiochipSolution> mutation = new BiochipMutation(mutationRate, deviceLibrary, null);
 
         NSGAII<BiochipSolution> algorithm = new NSGAIIBuilder<>(problem, crossover, mutation)
                 .setMaxIterations(maxIterations)
@@ -53,7 +51,7 @@ public class NSGARunner extends AbstractAlgorithmRunner {
 
         // Execute algorithm
         LogTool.setStartTime(System.currentTimeMillis());
-        AlgorithmRunner algorithmRunner = new AlgorithmRunner.Executor(algorithm).execute();
+        new AlgorithmRunner.Executor(algorithm).execute();
         LogTool.setEndTime(System.currentTimeMillis());
 
         // Save results

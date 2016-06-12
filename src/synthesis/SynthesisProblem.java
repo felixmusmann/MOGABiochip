@@ -7,6 +7,7 @@ import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.util.solutionattribute.impl.NumberOfViolatedConstraints;
 import org.uma.jmetal.util.solutionattribute.impl.OverallConstraintViolation;
 import synthesis.model.Device;
+import synthesis.model.DeviceLibrary;
 import synthesis.model.Electrode;
 
 import java.io.FileNotFoundException;
@@ -227,13 +228,15 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
 
         for (JsonElement element : nodes) {
             JsonObject node = element.getAsJsonObject();
+            String type = node.get("type").getAsString();
             if (node.has("metadata")) {
                 JsonObject metadata = node.getAsJsonObject("metadata");
                 if (metadata.has("fluid")) {
-                    String type = node.get("type").getAsString();
                     String fluid = metadata.get("fluid").getAsString();
                     requiredDeviceTypes.add(type + fluid);
                 }
+            } else if (type.equalsIgnoreCase("opt")) {
+                requiredDeviceTypes.add(type);
             }
         }
 
