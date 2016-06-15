@@ -37,6 +37,7 @@ public class LogTool {
         final String path = "data/logs/";
         Logger logger = Logger.getGlobal();
         logger.setLevel(logLevel);
+        logger.setUseParentHandlers(false);
 
         String filename = logFile + ".%d.log";
         int indexOfLastSlash = filename.lastIndexOf("/");

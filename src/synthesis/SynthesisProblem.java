@@ -233,7 +233,7 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
                 JsonObject metadata = node.getAsJsonObject("metadata");
                 if (metadata.has("fluid")) {
                     String fluid = metadata.get("fluid").getAsString();
-                    requiredDeviceTypes.add(type + fluid);
+                    requiredDeviceTypes.add(/*type +*/ fluid);
                 }
             } else if (type.equalsIgnoreCase("opt")) {
                 requiredDeviceTypes.add(type);

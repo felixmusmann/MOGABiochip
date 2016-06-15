@@ -1,6 +1,6 @@
 [
   {
-    "type": "indisB",
+    "type": "disB",
     "id": 0,
     "x": 0,
     "y": 0,
@@ -14,7 +14,7 @@
     }
   },
   {
-    "type": "indisS",
+    "type": "disS",
     "id": 1,
     "x": 0,
     "y": 0,
@@ -28,7 +28,7 @@
     }
   },
   {
-    "type": "indisR",
+    "type": "disR",
     "id": 2,
     "x": 0,
     "y": 0,

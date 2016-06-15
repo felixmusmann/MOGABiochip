@@ -73,8 +73,8 @@ public class Biochip extends CellStructure {
             int devWidth = device.getWidth();
             int devHeight = device.getHeight();
             int executionTime = device.getExecutionTime();
-            int startX = device.getStartCell().getX();
-            int startY = device.getStartCell().getY();
+            int startX = -1; //device.getStartCell().getX();
+            int startY = -1; //device.getStartCell().getY();
             dev.add(new compilation.Device(name, type, devWidth, devHeight, executionTime, startX, startY));
         }
 
@@ -83,7 +83,8 @@ public class Biochip extends CellStructure {
 
     public double getExecutionTime(String pathToApp, String pathToLib, double deadline, int minWindow, int maxWindow, int minRadius, int maxRadius) {
         try {
-            return compilation.Main.compile(this.toCompileArchitecture(), pathToApp, pathToLib, deadline, minWindow, maxWindow, minRadius, maxRadius);
+            Arch arch = this.toCompileArchitecture();
+            return compilation.Main.compile(arch, pathToApp, pathToLib, deadline, minWindow, maxWindow, minRadius, maxRadius);
         } catch (IOException e) {
             e.printStackTrace();
             return Double.MAX_VALUE;

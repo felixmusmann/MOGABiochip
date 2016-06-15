@@ -31,7 +31,7 @@ public class NSGARunner extends AbstractAlgorithmRunner {
 
         // Initialize logger
         try {
-            LogTool.initializeLogger(Level.OFF, pathToApp);
+            LogTool.initializeLogger(Level.INFO, pathToApp);
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException("Problem with creating log file: " + pathToApp);

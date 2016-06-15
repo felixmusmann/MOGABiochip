@@ -26,6 +26,7 @@ public class Arch{
               this.biochip.cells.get(y*width + x).isActive = false; 
           }
 		  this.dev = dev;
+		  biochip.devices = dev;
 	}
 	
 	 public Arch (String json_file) {

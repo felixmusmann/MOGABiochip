@@ -1346,8 +1346,8 @@ public class CRMPlacer {
 
 
 	public ArrayList<Rectangle> getCandidates(Rectangle r, Node n, DirectedGraph graph){
-		//System.out.println("Allocate for " + n.toString() +  biochip.toString() + "ER is "  + empty_rects.toString()); 
-		//System.out.println("Allocate for " + n.toString() + "rect = " + r.toString()); 
+		//System.out.println("Allocate for " + n.toString() +  biochip.toString() + "ER is "  + empty_rects.toString());
+		//System.out.println("Allocate for " + n.toString() + "rect = " + r.toString());
 		if (((biochip.width >= r.width) && (biochip.height >= r.height)) 
 				||
 				((biochip.width >= r.height) && (biochip.height >= r.width))){
