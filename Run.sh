@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# Java compiler settings
 classpath="src:lib/gson-2.6.2.jar:lib/jmetal-algorithm-5.0.jar:lib/jmetal-core-5.0.jar:lib/jmetal-exec-5.0.jar:lib/jmetal-problem-5.0.jar"
 
 # Directories and files
@@ -26,8 +27,15 @@ fi
 
 echo "Start synthesis."
 for graphFile in ${graphsPath}/*; do
-  echo "Processing $graphFile."
-  java -classpath ${classpath} synthesis.NSGARunner ${iterations} ${population} ${mutationRate} ${minWidth} ${minHeight} ${graphFile} ${libFile} ${devicesFile}
+  # Ignore files in ignore folder
+  if ${graphFile} != "*graphs/ignore*"
+  then
+    echo "Processing $graphFile."
+    java -classpath ${classpath} synthesis.NSGARunner ${iterations} ${population} ${mutationRate} ${minWidth} ${minHeight} ${graphFile} ${libFile} ${devicesFile}
+  else
+    echo "Ignoring $graphFile."
+  fi
+  echo "\n"
 done
 
 echo "Ending script."
