@@ -63,10 +63,6 @@ public class LogTool {
 
         txtFile.setFormatter(txtFormatter);
         logger.addHandler(txtFile);
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmXXX");
-        Date date = new Date(System.currentTimeMillis());
-        logger.info("Log for " + graphFile + " at " + sdf.format(date));
     }
 
     public static void saveResults() throws IOException {
