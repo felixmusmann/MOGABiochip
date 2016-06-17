@@ -68,24 +68,25 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
 
     @Override
     public void evaluate(BiochipSolution solution) {
-        long startTime, duration;
+        long duration;
 
-        startTime = System.currentTimeMillis();
+        LogTool.startTimer();
         solution.setObjective(0, solution.getCost());
-        duration = System.currentTimeMillis() - startTime;
-        LOGGER.info("Calculated cost in " + duration + " ms");
+        duration = LogTool.getTimerMillis();
+        LOGGER.finer("Calculated cost in " + duration + " ms");
 
         double deadline = 10;
         int window = 3;
         int radius = 5;
 
-        startTime = System.currentTimeMillis();
+        LogTool.startTimer();
         solution.setObjective(1, solution.getExecutionTime(pathToApp, pathToLib, deadline, window, window, radius, radius));
-        duration = System.currentTimeMillis() - startTime;
-        if (duration > 300) {
-            LOGGER.warning("Calculated execution time in " + duration + " ms\n" + solution);
+        duration = LogTool.getTimerMillis();
+        String message = String.format("Calculation of execution time\n\tApp completes in %.2f s\n\tCPU time %d ms", solution.getObjective(1), duration);
+        if (duration > 100 || duration < 10) {
+            LOGGER.warning(message + "\n" + solution);
         } else {
-            LOGGER.info("Calculated execution time in " + duration + " ms");
+            LOGGER.info(message);
         }
 
         evaluateConstraints(solution);
@@ -94,30 +95,30 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
     public void evaluateConstraints(BiochipSolution solution) {
         double overallConstraintViolation = 0;
         int violatedConstraints = 0;
-        long startTime, duration;
+        long duration;
 
         // filling constraint
-        startTime = System.currentTimeMillis();
+        LogTool.startTimer();
         double maxFreeCells = solution.getWidth() * solution.getHeight() * 0.3;
         double numberOfFreeCells = solution.getFreeCells().size();
         if (numberOfFreeCells > maxFreeCells) {
             overallConstraintViolation -= numberOfFreeCells / maxFreeCells;
             violatedConstraints++;
         }
-        duration = System.currentTimeMillis() - startTime;
-        LOGGER.info("Filling constraint " + duration + " ms");
+        duration = LogTool.getTimerMillis();
+        LOGGER.finer("Filling constraint " + duration + " ms");
 
         // min size constraint
-        startTime = System.currentTimeMillis();
+        LogTool.startTimer();
         if (solution.getWidth() < minWidth || solution.getHeight() < minHeight) {
             overallConstraintViolation -= 10;
             violatedConstraints++;
         }
-        duration = System.currentTimeMillis() - startTime;
-        LOGGER.info("Minimum size constraint " + duration + " ms");
+        duration = LogTool.getTimerMillis();
+        LOGGER.finer("Minimum size constraint " + duration + " ms");
 
         // required devices constraint
-        startTime = System.currentTimeMillis();
+        LogTool.startTimer();
         List<Device> devices = solution.getDevices();
         for (String type : requiredDeviceTypes) {
             boolean foundType = false;
@@ -136,17 +137,17 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
                 break;
             }
         }
-        duration = System.currentTimeMillis() - startTime;
-        LOGGER.info("Required devices constraint " + duration + " ms");
+        duration = LogTool.getTimerMillis();
+        LOGGER.finer("Required devices constraint " + duration + " ms");
 
         // connectivity constraint
-        startTime = System.currentTimeMillis();
+        LogTool.startTimer();
         if (!solution.isConnected()) {
             overallConstraintViolation -= 100;
             violatedConstraints++;
         }
-        duration = System.currentTimeMillis() - startTime;
-        LOGGER.info("Connectivity constraint " + duration + " ms");
+        duration = LogTool.getTimerMillis();
+        LOGGER.finer("Connectivity constraint " + duration + " ms");
 
         this.overallConstraintViolation.setAttribute(solution, overallConstraintViolation);
         this.numberOfViolatedConstraints.setAttribute(solution, violatedConstraints);
@@ -212,9 +213,8 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
             // Place device
             solution.addDevice(new Device(device), x, y);
         }
-
         long duration = System.currentTimeMillis() - startTime;
-        LOGGER.info("Created solution " + duration + " ms");
+        LOGGER.finer("Created solution " + duration + " ms");
         LogTool.incrementGeneratedArchitectures(1);
         return solution;
     }

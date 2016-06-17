@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.*;
@@ -16,6 +18,10 @@ public class LogTool {
 
     private static long startTime;
     private static long endTime;
+
+    // timer stuff
+    private static ThreadMXBean mxBean = ManagementFactory.getThreadMXBean();
+    private static long timer;
 
     // input files
     private static String graphFile;
@@ -165,5 +171,13 @@ public class LogTool {
                 }
             }
         });
+    }
+
+    public static void startTimer() {
+        timer = mxBean.getCurrentThreadCpuTime();
+    }
+
+    public static long getTimerMillis() {
+        return (mxBean.getCurrentThreadCpuTime() - timer) / 1000000;
     }
 }
