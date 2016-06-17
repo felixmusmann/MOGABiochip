@@ -415,7 +415,7 @@ public class CRMSyn {
 	public double minStartTime(ArrayList<Node> readyL, double crt_time){
 		double minStopT = 1000; 
 		if (readyL.size()==0) {
-			return crt_time+1; 
+			return crt_time+0.01; 
 		}
 		for (int i=0; i< readyL.size(); i++){
 			if (readyL.get(i).data.start_t < minStopT)
@@ -446,7 +446,7 @@ public class CRMSyn {
 				Node p = graph.getNode(v.preds.get(i)); 
 				// double crt_route_t = this.getRoutingOverhead(p.module, v.module); 
 				// use hadlock instead of manhattan
-				if(p.CRM.cells.size()>0 && p.CRM.cells.size()>0){
+				if(p.CRM.cells.size()>0 && v.CRM.cells.size()>0){
 					double crt_route_t = placer.getHadlockRoute(placer.biochip, p.CRM, v.CRM); 
 					//System.out.println("Pred p = " + p.toString() + " " + p.module.toString() + " dist =" + crt_route_t); 
 					if (route_t < crt_route_t) route_t = crt_route_t; 

@@ -27,8 +27,9 @@ public class Rectangle{
 			width = r.width; height = r.height; 
 			this.x_bl = r.x_bl; this.y_bl = r.y_bl;
 			//System.out.println("ggu" + this.x_bl); 
+			this.name = new String(r.name); 
 		} else {width = height = x_bl= y_bl = -1;}
-		this.name = new String(r.name); 
+		
 	}
 	
 	public Rectangle(Module m){

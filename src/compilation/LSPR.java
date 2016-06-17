@@ -17,15 +17,16 @@ public class LSPR {
 		ArrayList<Node> tempOpsL = new ArrayList<Node>(); // for stores 
 
 		/* CLEAN biochip, calculate the PRIORITIES and compute READY LIST*/
-		this.cleanBiochipForNewUse(biochip); // TODO check if the parameters are trasmitted through reference
+		this.cleanBiochipForNewUse(biochip); 
 		ftGraph.calcCriticalityFactor(mLib); 
-		computeInitialReadyList(ftGraph, readyL, biochip); // TODO check if the parameters are trasmitted through reference
+		computeInitialReadyList(ftGraph, readyL, biochip); 
 
 		double crt_time = 0; 
 		//for (int x = 0; x<10; x++){
 		while (!readyL.isEmpty()){	
 			crt_time +=0.01;
-			//crt_time = syn.minStopTime(runningOpsL, crt_time);	/*TODO update time - skipping to the nearest time when an operations is finished */
+			//crt_time = synCRM.minStartTime(readyL, crt_time);	/*TODO update time - skipping to the nearest time when an operations is finished */
+			//System.out.println("crt_time " + crt_time);
 			if (crt_time >= 1000) break; 
 			/* check for finished operations and create stores for them in tempOpsL */
 			synCRM.cleanBiochip(runningOpsL, ftGraph, crt_time, biochip, libCRM, tempOpsL);
@@ -53,7 +54,7 @@ public class LSPR {
 								bestMod = synCRM.allocate(v,biochip, crt_time, libCRM);		
 								if (bestMod!=null){
 									synCRM.scheduleWRouting(v, crt_time, bestMod.t0_exe, ftGraph, libCRM);
-									//System.out.println(" Op " + v.getName() + " " + v.data.start_t + " --- " + v.data.stop_t + " " +  bestMod.t0_exe + " CRM " + bestMod.id); 
+									//System.out.println("t = " + crt_time + " Op " + v.getName() + " " + v.data.start_t + " --- " + v.data.stop_t + " " +  bestMod.t0_exe + " CRM " + bestMod.id); 
 									//System.out.println("\nAfter SCHEDULE" + libCRM); 
 								}
 							}
@@ -64,6 +65,8 @@ public class LSPR {
 									if (bestDev.isPlaced()) bookDevice(biochip, crt_time, v);
 									else placeDeviceFirstTime(bestDev, crt_time, v, synCRM, ftGraph,  biochip);
 									synCRM.scheduleWRouting(v, crt_time, bestDev.time, ftGraph, libCRM);
+									//System.out.println("t = " + crt_time + " Op " + v.getName() + " " + v.data.start_t + " --- " + v.data.stop_t + " " ); 
+									
 								}
 							}
 
@@ -88,20 +91,6 @@ public class LSPR {
 				}
 			}
 		}
-		// calculate the maximum execution time of the running operations
-		// add it to the crt_time to get the completion time 
-		double max_time = 0; 
-		for (int i=0; i<runningOpsL.size(); i++){
-			if(
-					(runningOpsL.get(i).getType().toString().compareTo("STORE")!=0) 
-					&& 
-					(runningOpsL.get(i).getName().toString().startsWith("R")==false)
-			){
-				double v_time = runningOpsL.get(i).data.stop_t - crt_time; //- runningOpsL.get(i).data.start_t;
-				if (v_time>max_time) max_time = v_time; 
-			}
-		}
-		// NOW time for some WCET estimation (for a maximum number of k faults) 
 		
 		return this.estimateFaultyScheduleLength(Main.K_MAX, ftGraph); 
 	}

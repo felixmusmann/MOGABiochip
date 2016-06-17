@@ -14,7 +14,6 @@ import java.util.Set;
 public class CRMPlacer {
 	public static boolean PRINT = false; 
 
-
 	Biochip biochip;
 	ArrayList<Rectangle> empty_rects; 
 
@@ -22,6 +21,7 @@ public class CRMPlacer {
 		// the biochip - not a copy, a reference directly to the biochip
 		// any modification done by the placer applies to the original biochip as well
 		this.biochip = biochip; 
+		this.empty_rects = new ArrayList<Rectangle>(); 
 
 	}
 
@@ -1351,7 +1351,7 @@ public class CRMPlacer {
 		if (((biochip.width >= r.width) && (biochip.height >= r.height)) 
 				||
 				((biochip.width >= r.height) && (biochip.height >= r.width))){
-			// the biochip is big enough to accomodate the module 
+			// the biochip is big enough to accommodate the module 
 			ArrayList<Rectangle> cands = new ArrayList<Rectangle>(); 
 			ListIterator<Rectangle> listIt = empty_rects.listIterator(); 
 			//System.out.println("ER = " + empty_rects.toString());

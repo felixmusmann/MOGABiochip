@@ -1,9 +1,10 @@
 package synthesis;
 
-import com.google.gson.JsonObject;
+import compilation.Arch;
 import compilation.DirectedGraph;
 import synthesis.model.Biochip;
 import synthesis.model.Device;
+import synthesis.model.DeviceLibrary;
 
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -16,36 +17,40 @@ public class Synthesis {
     private static final boolean DEMO_MODE = false;
 
     public static void main(String[] args) {
-        String fileName = "test%dbla";
-        int count = 1;
-        System.out.println(String.format(fileName, count));
-
-//        Biochip arch = JSONParser.readBiochip("data/simpleArch.json");
-//        HashMap<Integer, Device> library = parser.readDeviceLibrary("data/devices.json");
-//
-//        System.out.println("## Original architecture\n" + arch);
-//
-//        Biochip[] chips = arch.splitAtRow(2);
-//        System.out.println(chips[0]);
-//        System.out.println(chips[1]);
-//
-//        System.out.println("####");
-//        System.out.println(Biochip.mergeVertical(chips[0], chips[1], 0, 9));
-//        System.out.println("####");
-//
-//        System.out.println("####");
-//        System.out.println(Biochip.mergeHorizontal(chips[0], chips[1], 0, 3));
-//        System.out.println("####");
-
-//        try {
-//            FileWriter writer = new FileWriter("input/graph10.txt.json");
-//            JsonObject graph = JSONParser.convertGraph("input/graph10.txt");
-//            writer.write(graph.toString());
-//            writer.close();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-    }
+    	// Input files
+    	String appName = "interp_dil";
+    	String appFile = "data/input/graphs/" + appName + ".txt";
+    	String libFile = "data/input/TS_lib.txt";
+    	String devicesFile = "data/input/devices.json";
+    	
+    	// Architecture parameters
+    	int minWidth = 10;
+    	int minHeight = 10;
+    	
+    	// Compilation parameters
+    	int deadline = 10;
+    	int minWindow = 3;
+    	int maxWindow = 3;
+    	int minRadius = 10;
+    	int maxRadius = 10;
+    	
+    	DeviceLibrary deviceLib = JSONParser.readDeviceLibrary(devicesFile);
+    	SynthesisProblem problem = new SynthesisProblem(minWidth, minHeight, appFile, libFile, deviceLib);
+    	BiochipSolution solution = problem.createSolution();
+    	
+    	Arch my_arch = solution.toCompileArchitecture(); 
+    	System.out.println(my_arch.toString()); 
+    	
+    	try {
+    		long cpu_start_t = System.currentTimeMillis(); 
+			double time = compilation.Main.compile(solution.toCompileArchitecture(), appFile, libFile, deadline, minWindow, maxWindow, minRadius, maxRadius);
+			long cpu_stop_t = System.currentTimeMillis(); 
+			System.out.println("CPU time = " + (cpu_stop_t - cpu_start_t) + " ms");
+			System.out.println("app completes in " +  time + " s" );
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
     public static void waitForEnter() {
         try {
