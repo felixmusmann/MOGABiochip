@@ -26,16 +26,9 @@ else
 fi
 
 echo "Start synthesis."
-for graphFile in ${graphsPath}/*; do
-  # Ignore files in ignore folder
-  if ${graphFile} != "*graphs/ignore*"
-  then
-    echo "Processing $graphFile."
-    java -classpath ${classpath} synthesis.NSGARunner ${iterations} ${population} ${mutationRate} ${minWidth} ${minHeight} ${graphFile} ${libFile} ${devicesFile}
-  else
-    echo "Ignoring $graphFile."
-  fi
-  echo "\n"
+for graphFile in ${graphsPath}/*.txt; do
+  echo "Processing $graphFile."
+  java -classpath ${classpath} synthesis.NSGARunner ${iterations} ${population} ${mutationRate} ${minWidth} ${minHeight} ${graphFile} ${libFile} ${devicesFile}
 done
 
 echo "Ending script."
