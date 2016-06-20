@@ -82,8 +82,10 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
         LogTool.startTimer();
         solution.setObjective(1, solution.getExecutionTime(pathToApp, pathToLib, deadline, window, window, radius, radius));
         duration = LogTool.getTimerMillis();
-        String message = String.format("Calculation of execution time\n\tApp completes in %.2f s\n\tCPU time %d ms", solution.getObjective(1), duration);
-        LOGGER.info(message);
+        if (duration > 3000) {
+            String message = String.format("Calculation of execution time\n\tApp completes in %.2f s\n\tCPU time %d ms", solution.getObjective(1), duration);
+            LOGGER.info(message + solution);
+        }
 
         evaluateConstraints(solution);
     }
