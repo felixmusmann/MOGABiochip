@@ -74,7 +74,7 @@ public class LogTool {
         }
 
         JsonObject sessionResults = new JsonObject();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmXXX");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mmXXX");
         Date date = new Date(startTime);
         sessionResults.addProperty("start-time", sdf.format(date));
         long seconds = (endTime - startTime) / 1000;
@@ -82,7 +82,7 @@ public class LogTool {
         long hours = minutes / 60;
         long days = hours / 24;
         String time = days + ":" + hours % 24 + ":" + minutes % 60 + ":" + seconds % 60;
-        sessionResults.addProperty("total-time", time);
+        sessionResults.addProperty("total-time-of-nsga", time);
 
         JsonObject input = new JsonObject();
         input.addProperty("graph", graphFile);
@@ -105,7 +105,7 @@ public class LogTool {
         for (BiochipSolution solution : solutions) {
             JsonObject result = new JsonObject();
             result.addProperty("cost", solution.getObjective(0));
-            result.addProperty("execution-time", solution.getObjective(1));
+            result.addProperty("execution-time-in-seconds", solution.getObjective(1));
             result.addProperty("architecture", solution.toString());
             results.add(result);
         }
