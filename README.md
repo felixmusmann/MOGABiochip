@@ -4,17 +4,17 @@
 
 ```
 MOGABiochip
-├─ data
-│  ├─ input          # all necessary input files (module and device libraries)
-│  │  └─ graphs      # graphs that will be used for nsga
-│  │     └─ ignore   # graphs that will be ignored
-│  ├─ logs           # log files for each graph and run with execution time and cpu time
-│  └─ results        # json files with results of all runs for each graph
-├─ lib               # necessary libs for compiling source code (GSON, JMetal...)
-├─ src
-│  ├─ compilation
-│  └─ synthesis
-└─ Run.sh
++- data
+|  +- input          # all necessary input files (module and device libraries)
+|  |  +- graphs      # graphs that will be used for nsga
+|  |     +- ignore   # graphs that will be ignored
+|  +- logs           # log files for each graph and run with execution time and cpu time
+|  +- results        # json files with results of all runs for each graph
++- lib               # necessary libs for compiling source code (GSON, JMetal...)
++- src
+|  +- compilation
+|  +- synthesis
++- Run.sh
 ```
 
 
