@@ -103,7 +103,7 @@ class CRMModule{
 
 	/** For comparison reasons. Checks if 2 CRMs are equal.*/
 	public boolean equals(CRMModule p){
-		if (this.capacity == p.capacity && this.operation.compareTo(p.operation)==0 && this.t0_exe == p.t0_exe
+		if (this.capacity == p.capacity && this.operation.equals(p.operation) && this.t0_exe == p.t0_exe
 				&& this.cells.size() == p.cells.size()){
 			boolean found_dif = false;
 			for (int a=0; a<this.cells.size() && (!found_dif); a++){
