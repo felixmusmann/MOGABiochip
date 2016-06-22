@@ -2,12 +2,11 @@ package synthesis;
 
 import org.uma.jmetal.operator.MutationOperator;
 import synthesis.model.Biochip;
+import synthesis.model.Device;
 import synthesis.model.DeviceLibrary;
 import synthesis.model.Electrode;
 
-import java.util.ArrayList;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 public class BiochipMutation implements MutationOperator<BiochipSolution> {
 
@@ -17,7 +16,7 @@ public class BiochipMutation implements MutationOperator<BiochipSolution> {
     private DeviceLibrary deviceLibrary;
 
     public enum Type {
-        ADD_ELECTRODE, REMOVE_ELECTRODE, ADD_COLUMN, REMOVE_COLUMN, ADD_ROW, REMOVE_ROW; // TODO: ADD_DEVICE;
+        ADD_ELECTRODE, REMOVE_ELECTRODE, ADD_COLUMN, REMOVE_COLUMN, ADD_ROW, REMOVE_ROW, REMOVE_DEVICE; // TODO: ADD_DEVICE;
 
         private static final Type[] VALUES = values();
         private static final int SIZE = VALUES.length;
@@ -130,6 +129,36 @@ public class BiochipMutation implements MutationOperator<BiochipSolution> {
                 int y = random.nextInt(biochip.getHeight());
                 biochip.removeRowOfElectrodes(y);
                 break;
+            }
+            case REMOVE_DEVICE: {
+                HashMap<String, Integer> removableDeviceTypes = new HashMap<>();
+                for (Device device : biochip.getDevices()) {
+                    if (removableDeviceTypes.containsKey(device.getType())) {
+                        int count = removableDeviceTypes.get(device.getType()) + 1;
+                        removableDeviceTypes.put(device.getType(), count);
+                    } else {
+                        removableDeviceTypes.put(device.getType(), 1);
+                    }
+                }
+
+                Iterator<Map.Entry<String, Integer>> iterator = removableDeviceTypes.entrySet().iterator();
+                while (iterator.hasNext()) {
+                    Map.Entry<String, Integer> entry = iterator.next();
+                    if (entry.getValue() == 1) {
+                        iterator.remove();
+                    }
+                }
+
+                if (removableDeviceTypes.size() > 0) {
+                    int rnd = random.nextInt(removableDeviceTypes.size());
+                    String typeToRemove = (String) removableDeviceTypes.keySet().toArray()[rnd];
+                    for (Device device : biochip.getDevices()) {
+                        if (device.getType().equals(typeToRemove)) {
+                            biochip.removeDevice(device);
+                            break;
+                        }
+                    }
+                }
             }
         }
 
