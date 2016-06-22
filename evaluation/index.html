@@ -1,0 +1,44 @@
+<!DOCTYPE html> <html ng-app="evaluation">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Biochips</title>
+    <script src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/jquery.flot/0.8.3/jquery.flot.min.js"></script>
+    <script language="javascript" type="text/javascript" src="bower_components/angular-flot/angular-flot.js"></script>
+    <script src="app.js"></script>
+      <link rel="stylesheet" href="pure-min.css">
+  </head>
+  <body style="margin: 10px; white-space: nowrap;" ng-controller="EvalCtrl">
+    <div class="pure-g">
+        <div class="pure-u-1">
+            <h1>Biochip Evaluation</h1>
+        </div>
+        <div class="pure-u-1-5">
+            <form class="pure-form pure-form-stacked">
+                <label>Graph</label>
+                <select ng-model="graph" ng-options="graph as graph for graph in graphList" ng-change="queryData()"></select>
+            </form>
+        </div>
+        <div class="pure-u-4-5">
+            <flot ng-if="dataset.length > 0" dataset="dataset" options="chartOptions" width="100%" height="500px" on-plot-click="selectSolution(event, pos, item)"></flot>
+            <p ng-hide="graph">
+                Please select a graph from the dropdown menu.
+            </p>
+            <p ng-if="graph && dataset.length == 0">
+                No results available for {{graph}}.
+            </p>
+        </div>
+        <div class="pure-u-1-5" ng-if="showSolution">
+        </div>
+        <div class="pure-u-4-5" ng-if="showSolution">
+            <p>
+                Cost: {{solution.cost}}<br>
+                Execution time: {{solution.executionTime | number:2 }} s
+            </p>
+            <pre style="white-space: pre">{{solution.architecture}}</pre>
+        </div>
+    </div>
+  </body>
+</html>
