@@ -1,11 +1,11 @@
 package synthesis;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.util.solutionattribute.impl.NumberOfViolatedConstraints;
 import org.uma.jmetal.util.solutionattribute.impl.OverallConstraintViolation;
+import synthesis.model.Biochip;
 import synthesis.model.Device;
 import synthesis.model.DeviceLibrary;
 import synthesis.model.Electrode;
@@ -24,6 +24,8 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
     private DeviceLibrary deviceLibrary;
     private Set<String> requiredDeviceTypes;
 
+    private JsonObject appGraph;
+
     private int minWidth;
     private int minHeight;
 
@@ -40,10 +42,13 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
         this.deviceLibrary = deviceLibrary;
 
         try {
-            this.requiredDeviceTypes = getRequiredDeviceTypes(pathToApp);
+            JsonElement rootElement = JSONParser.convertGraph(pathToApp);
+            this.appGraph = rootElement.getAsJsonObject().getAsJsonObject("graph");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+
+        this.requiredDeviceTypes = getRequiredDeviceTypes();
     }
 
     @Override
@@ -68,52 +73,10 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
 
     @Override
     public void evaluate(BiochipSolution solution) {
-        long duration;
-
-        LogTool.startTimer();
-        solution.setObjective(0, solution.getCost());
-        duration = LogTool.getTimerMillis();
-        LOGGER.finer("Calculated cost in " + duration + " ms");
-
-        double deadline = 10;
-        int window = 3;
-        int radius = 5;
-
-        LogTool.startTimer();
-        solution.setObjective(1, solution.getExecutionTime(pathToApp, pathToLib, deadline, window, window, radius, radius));
-        duration = LogTool.getTimerMillis();
-        if (duration > 3000) {
-            String message = String.format("Calculation of execution time\n\tApp completes in %.2f s\n\tCPU time %d ms", solution.getObjective(1), duration);
-            LOGGER.info(message + solution);
-        }
-
-        evaluateConstraints(solution);
-    }
-
-    public void evaluateConstraints(BiochipSolution solution) {
         double overallConstraintViolation = 0;
         int violatedConstraints = 0;
+        boolean isConnected = true;
         long duration;
-
-        // filling constraint
-        LogTool.startTimer();
-        double maxFreeCells = solution.getWidth() * solution.getHeight() * 0.3;
-        double numberOfFreeCells = solution.getFreeCells().size();
-        if (numberOfFreeCells > maxFreeCells) {
-            overallConstraintViolation -= numberOfFreeCells / maxFreeCells;
-            violatedConstraints++;
-        }
-        duration = LogTool.getTimerMillis();
-        LOGGER.finer("Filling constraint " + duration + " ms");
-
-        // min size constraint
-        LogTool.startTimer();
-        if (solution.getWidth() < minWidth || solution.getHeight() < minHeight) {
-            overallConstraintViolation -= 10;
-            violatedConstraints++;
-        }
-        duration = LogTool.getTimerMillis();
-        LOGGER.finer("Minimum size constraint " + duration + " ms");
 
         // required devices constraint
         LogTool.startTimer();
@@ -143,9 +106,53 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
         if (!solution.isConnected()) {
             overallConstraintViolation -= 100;
             violatedConstraints++;
+            isConnected = false;
         }
         duration = LogTool.getTimerMillis();
         LOGGER.finer("Connectivity constraint " + duration + " ms");
+
+        // filling constraint
+        LogTool.startTimer();
+        double maxFreeCells = solution.getWidth() * solution.getHeight() * 0.3;
+        double numberOfFreeCells = solution.getFreeCells().size();
+        if (numberOfFreeCells > maxFreeCells) {
+            overallConstraintViolation -= numberOfFreeCells / maxFreeCells;
+            violatedConstraints++;
+        }
+        duration = LogTool.getTimerMillis();
+        LOGGER.finer("Filling constraint " + duration + " ms");
+
+        // min size constraint
+        LogTool.startTimer();
+        if (solution.getWidth() < minWidth || solution.getHeight() < minHeight) {
+            overallConstraintViolation -= 10;
+            violatedConstraints++;
+        }
+        duration = LogTool.getTimerMillis();
+        LOGGER.finer("Minimum size constraint " + duration + " ms");
+
+        // Calculate cost
+        LogTool.startTimer();
+        solution.setObjective(0, solution.getCost());
+        duration = LogTool.getTimerMillis();
+        LOGGER.finer("Calculated cost in " + duration + " ms");
+
+        // Calculate execution time
+        if (isConnected) {
+            double deadline = 10;
+            int window = 3;
+            int radius = 5;
+
+            LogTool.startTimer();
+            solution.setObjective(1, solution.getExecutionTime(pathToApp, pathToLib, deadline, window, window, radius, radius));
+            duration = LogTool.getTimerMillis();
+            if (duration > 3000) {
+                String message = String.format("Calculation of execution time\n\tApp completes in %.2f s\n\tCPU time %d ms", solution.getObjective(1), duration);
+                LOGGER.info(message + solution);
+            }
+        } else {
+            solution.setObjective(1, Double.MAX_VALUE);
+        }
 
         this.overallConstraintViolation.setAttribute(solution, overallConstraintViolation);
         this.numberOfViolatedConstraints.setAttribute(solution, violatedConstraints);
@@ -154,10 +161,27 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
     @Override
     public BiochipSolution createSolution() {
         long startTime = System.currentTimeMillis();
-        BiochipSolution solution = createSolutionWorst();
+        BiochipSolution solution = createSolutionFast();
         long duration = System.currentTimeMillis() - startTime;
         LOGGER.finer("Created solution " + duration + " ms");
         LogTool.incrementGeneratedArchitectures(1);
+        return solution;
+    }
+
+    private BiochipSolution createSolutionFast() {
+        Random rnd = new Random();
+        int noIns = getCountOfOperationType("in");
+        int noOpt = getCountOfOperationType("opt");
+        int noMix = getCountOfOperationType("mix");
+
+        int moduleArea = 3 * 5;
+        int sizeFactor = noOpt > 0 ? noOpt * 2 : noIns > 0 ? noIns / 2 : noMix;
+        int rndFactor = rnd.nextInt(11) - 5;
+        int size = (int) Math.sqrt(moduleArea * sizeFactor) + 1 + rndFactor;
+
+        BiochipSolution solution = new BiochipSolution(size, size, null, null);
+        solution = placeDevices(solution);
+
         return solution;
     }
 
@@ -167,6 +191,16 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
         int height = minHeight + rnd.nextInt(20);
 
         BiochipSolution solution = new BiochipSolution(width, height, null, null);
+        solution = placeDevices(solution);
+
+        return solution;
+    }
+
+    private BiochipSolution placeDevices(BiochipSolution solution) {
+        int width = solution.getWidth();
+        int height = solution.getHeight();
+
+        // Generate references for electrodes for lookup
         ArrayList<ArrayList<Electrode>> electrodeReferences = new ArrayList<>(width);
         for (int x = 0; x < width; x++) {
             ArrayList<Electrode> column = new ArrayList<>(height);
@@ -176,11 +210,13 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
             electrodeReferences.add(column);
         }
 
+        // Initialize variables for current position on sides
         int leftY = 0;
         int rightY = 0;
         int topX = 0;
         int bottomX = 0;
 
+        Random rnd = new Random();
         for (String type : requiredDeviceTypes){
             List<Device> devices = deviceLibrary.getDevicesByType(type);
             Device device = devices.get(rnd.nextInt(devices.size()));
@@ -223,14 +259,26 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
         return solution;
     }
 
-    public static Set<String> getRequiredDeviceTypes(String path) throws FileNotFoundException {
-        Set<String> requiredDeviceTypes = new TreeSet<>();
-        // JsonParser jsonParser = new JsonParser();
-        JsonElement rootElement = JSONParser.convertGraph(path); //jsonParser.parse(path);
-        JsonObject graph = rootElement.getAsJsonObject().getAsJsonObject("graph");
-        JsonArray nodes = graph.getAsJsonArray("nodes");
+    private int getCountOfOperationType(String... types) {
+        Set<String> typeSet = new TreeSet<>();
+        Collections.addAll(typeSet, types);
+        int counter = 0;
 
-        for (JsonElement element : nodes) {
+        for (JsonElement element : appGraph.getAsJsonArray("nodes")) {
+            JsonObject node = element.getAsJsonObject();
+            String nodeType = node.get("type").getAsString();
+            if (typeSet.contains(nodeType)) {
+                counter++;
+            }
+        }
+
+        return counter;
+    }
+
+    public Set<String> getRequiredDeviceTypes() {
+        Set<String> requiredDeviceTypes = new TreeSet<>();
+
+        for (JsonElement element : appGraph.getAsJsonArray("nodes")) {
             JsonObject node = element.getAsJsonObject();
             String type = node.get("type").getAsString();
             if (node.has("metadata")) {
