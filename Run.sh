@@ -16,7 +16,22 @@ mutationRate=0.7
 minWidth=5
 minHeight=5
 
+echo "######################"
+echo "Configuration"
+echo "######################"
+echo "graphsPath: $graphsPath"
+echo "libFile: $libFile"
+echo "devicesFile: $devicesFile"
+echo "iterations: $iterations"
+echo "population: $population"
+echo "mutationRate: $mutationRate"
+echo "minWidth: $minWidth"
+echo "minHeight: $minHeight"
+
+echo ""
+echo "######################"
 echo "Compiling source files."
+echo "######################"
 if javac -encoding utf8 -classpath ${classpath} src/compilation/*.java src/synthesis/*.java src/synthesis/model/*.java
 then
   echo "Compilation successful."
@@ -25,7 +40,10 @@ else
   exit
 fi
 
+echo ""
+echo "######################"
 echo "Start synthesis."
+echo "######################"
 for graphFile in ${graphsPath}/*.txt; do
   echo "Processing $graphFile."
   java -classpath ${classpath} synthesis.NSGARunner ${iterations} ${population} ${mutationRate} ${minWidth} ${minHeight} ${graphFile} ${libFile} ${devicesFile}
