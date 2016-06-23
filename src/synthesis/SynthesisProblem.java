@@ -154,6 +154,14 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
     @Override
     public BiochipSolution createSolution() {
         long startTime = System.currentTimeMillis();
+        BiochipSolution solution = createSolutionWorst();
+        long duration = System.currentTimeMillis() - startTime;
+        LOGGER.finer("Created solution " + duration + " ms");
+        LogTool.incrementGeneratedArchitectures(1);
+        return solution;
+    }
+
+    private BiochipSolution createSolutionWorst() {
         Random rnd = new Random();
         int width = minWidth + rnd.nextInt(20);
         int height = minHeight + rnd.nextInt(20);
@@ -211,13 +219,11 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
             // Place device
             solution.addDevice(new Device(device), x, y);
         }
-        long duration = System.currentTimeMillis() - startTime;
-        LOGGER.finer("Created solution " + duration + " ms");
-        LogTool.incrementGeneratedArchitectures(1);
+
         return solution;
     }
 
-    private static Set<String> getRequiredDeviceTypes(String path) throws FileNotFoundException {
+    public static Set<String> getRequiredDeviceTypes(String path) throws FileNotFoundException {
         Set<String> requiredDeviceTypes = new TreeSet<>();
         // JsonParser jsonParser = new JsonParser();
         JsonElement rootElement = JSONParser.convertGraph(path); //jsonParser.parse(path);
