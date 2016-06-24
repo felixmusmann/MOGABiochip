@@ -21,8 +21,8 @@ MOGABiochip
 ## How-to Run.sh
 
 The Run.sh script will compile the source code and run the algorithm for every graph in `data/input/graphs`. Graphs in subfolders will be ignored. 
-For running the script simply use `sh Run.sh > Run.log 2>&1 &`. This will execute the script in the background and write the output to Run.log.
-If you don't want the log file just use `sh Run.sh &`. Without the ampersand the script will be run in the foreground and closed when exiting the shell.
+For running the script simply use `nohup sh Run.sh > Run.log 2>&1 &`. This will execute the script in the background and write the output to Run.log.
+If you don't want the log file just use `nohup sh Run.sh &`. Without the ampersand the script will be run in the foreground. nohup prevents it from being closed when exiting the shell.
 
 ## Class overview
 
@@ -51,6 +51,8 @@ If you don't want the log file just use `sh Run.sh &`. Without the ampersand the
 **The specifications still need some work, cause there are inconsistencies owed to the mix of old and new formats and the current implementation!** 
 
 ### Biochip
+
+The biochip is defined by an coordinate system, that starts in the top left corner.
 
 **General**
 
