@@ -184,10 +184,9 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
         int size = (int) Math.sqrt(moduleArea * sizeFactor) + 1;
 
         int rndFactor = rnd.nextInt(11) - 5;
-        if (rndFactor < 0 && size > Math.abs(rndFactor)) {
+        if (rndFactor > 0 || (rndFactor < 0 && size - 2 > Math.abs(rndFactor))) {
             size += rndFactor;
         }
-
 
         BiochipSolution solution = new BiochipSolution(size, size, null, null);
         solution = placeDevices(solution);
