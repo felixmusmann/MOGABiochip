@@ -42,8 +42,8 @@ public class BiochipCrossover implements CrossoverOperator<BiochipSolution> {
 
         // First crossover horizontal
         decider = rnd.nextInt(2);
-        first = splitBiochips.get(0)[decider];
-        second = splitBiochips.get(1)[1 - decider];
+        first = splitBiochips.get(0)[decider].getHeight() > 0 ? splitBiochips.get(0)[decider] : splitBiochips.get(0)[1 - decider];
+        second = splitBiochips.get(1)[1 - decider].getHeight() > 0 ? splitBiochips.get(1)[1 - decider] : splitBiochips.get(1)[decider];
         int rowFirst = rnd.nextInt(first.getHeight());
         int rowSecond = rnd.nextInt(second.getHeight());
         Biochip mergedBiochip = Biochip.mergeHorizontal(first, second, rowFirst, rowSecond);
@@ -51,8 +51,8 @@ public class BiochipCrossover implements CrossoverOperator<BiochipSolution> {
 
         // Second crossover vertical
         decider = rnd.nextInt(2);
-        first = splitBiochips.get(0)[1 - decider];
-        second = splitBiochips.get(1)[decider];
+        first = splitBiochips.get(0)[1 - decider].getWidth() > 0 ? splitBiochips.get(0)[1 - decider] : splitBiochips.get(0)[decider];
+        second = splitBiochips.get(1)[decider].getWidth() > 0 ? splitBiochips.get(1)[decider] : splitBiochips.get(1)[1 - decider];
         int columnFirst = rnd.nextInt(first.getWidth());
         int columnSecond = rnd.nextInt(second.getWidth());
         mergedBiochip = Biochip.mergeVertical(first, second, columnFirst, columnSecond);
