@@ -168,6 +168,11 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
         return solution;
     }
 
+    /*private BiochipSolution createSolutionGood() {
+        BiochipSolution solution = new BiochipSolution();
+        return solution;
+    }*/
+
     private BiochipSolution createSolutionFast() {
         Random rnd = new Random();
         int noIns = getCountOfOperationType("in");
@@ -176,8 +181,13 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
 
         int moduleArea = 3 * 5;
         int sizeFactor = noOpt > 0 ? noOpt * 2 : noIns > 0 ? noIns / 2 : noMix;
+        int size = (int) Math.sqrt(moduleArea * sizeFactor) + 1;
+
         int rndFactor = rnd.nextInt(11) - 5;
-        int size = (int) Math.sqrt(moduleArea * sizeFactor) + 1 + rndFactor;
+        if (rndFactor < 0 && size > Math.abs(rndFactor)) {
+            size += rndFactor;
+        }
+
 
         BiochipSolution solution = new BiochipSolution(size, size, null, null);
         solution = placeDevices(solution);
