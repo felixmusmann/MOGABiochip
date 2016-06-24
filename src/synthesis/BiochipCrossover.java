@@ -2,6 +2,7 @@ package synthesis;
 
 import org.uma.jmetal.operator.CrossoverOperator;
 import synthesis.model.Biochip;
+import synthesis.model.Electrode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,24 +23,15 @@ public class BiochipCrossover implements CrossoverOperator<BiochipSolution> {
             double decider;
             biochip.shrink();
 
-            if (biochip.getWidth() < 2) {
-                if (biochip.getHeight() < 2) {
-                    LOGGER.severe("Biochip too small to split.");
-                    continue;
-                } else {
-                    decider = 1;
-                }
-            } else if (biochip.getHeight() < 2) {
-                decider = 0;
-            } else {
-                decider = rnd.nextDouble();
-            }
+            int electrodeIndex = rnd.nextInt(biochip.getElectrodes().size());
+            Electrode electrode = biochip.getElectrodes().get(electrodeIndex);
 
+            decider = rnd.nextDouble();
             if (decider < 0.5) {
-                int column = 1 + rnd.nextInt(biochip.getWidth() - 1);
+                int column = electrode.getX();
                 splitBiochips.add(biochip.splitAtColumn(column));
             } else {
-                int row = 1 + rnd.nextInt(biochip.getHeight() - 1);
+                int row = electrode.getY();
                 splitBiochips.add(biochip.splitAtRow(row));
             }
         }
