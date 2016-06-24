@@ -1,4 +1,4 @@
-ix 4 7 2
+mix 4 7 2
 mix 4 6 3
 mix 5 5 7
 mix 3 5 5
