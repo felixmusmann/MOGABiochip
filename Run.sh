@@ -10,7 +10,7 @@ libFile="$inputPath/TS_lib.txt"
 devicesFile="$inputPath/devices.json"
 
 # Parameters for NSGA-II
-iterations=10
+iterations=1000
 population=10
 mutationRate=0.7
 minWidth=5
@@ -46,7 +46,7 @@ echo "Start synthesis."
 echo "######################"
 for graphFile in ${graphsPath}/*.txt; do
   echo "Processing $graphFile."
-  java -classpath ${classpath} synthesis.NSGARunner ${iterations} ${population} ${mutationRate} ${minWidth} ${minHeight} ${graphFile} ${libFile} ${devicesFile}
+  java -classpath ${classpath} synthesis.NSGARunner ${iterations} ${population} ${mutationRate} ${minWidth} ${minHeight} ${graphFile} ${libFile} ${devicesFile} >> Run.log 2>&1
 done
 
 echo "Ending script."
