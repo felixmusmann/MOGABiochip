@@ -88,6 +88,18 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
         boolean isConnected = true;
         long duration;
 
+        // REPAIR hole puncher
+        BiochipHolePuncher holePuncher = new BiochipHolePuncher();
+        // TODO: inject limiting factor
+        while (solution.getCost() > highestCost * 1.1) {
+            System.out.println(String.format("Solution %.2f over budget.", highestCost * 1.1 - solution.getCost()));
+            solution = holePuncher.execute(solution);
+        }
+
+        // REPAIR connectivity
+        BiochipConnectivity connectivity = new BiochipConnectivity();
+        solution = connectivity.execute(solution);
+
         // CONSTRAINT required devices
         LogTool.startTimer();
         List<Device> devices = solution.getDevices();
@@ -111,16 +123,6 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
         duration = LogTool.getTimerMillis();
         LOGGER.finer("Required devices constraint " + duration + " ms");
 
-        // CONSTRAINT connectivity
-        LogTool.startTimer();
-        if (!solution.isConnected()) {
-            overallConstraintViolation -= 100;
-            violatedConstraints++;
-            isConnected = false;
-        }
-        duration = LogTool.getTimerMillis();
-        LOGGER.finer("Connectivity constraint " + duration + " ms");
-
         // CONSTRAINT filling
         LogTool.startTimer();
         double maxFreeCells = solution.getWidth() * solution.getHeight() * 0.3;
@@ -140,12 +142,6 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
         }
         duration = LogTool.getTimerMillis();
         LOGGER.finer("Minimum size constraint " + duration + " ms");
-
-        // REPAIR hole puncher
-        BiochipHolePuncher holePuncher = new BiochipHolePuncher();
-        while (solution.getCost() > highestCost * 1.1) {
-            solution = holePuncher.execute(solution);
-        }
 
         // OBJECTIVE cost
         float cost = solution.getCost();
