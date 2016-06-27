@@ -40,7 +40,7 @@ public class NSGARunner extends AbstractAlgorithmRunner {
         LogTool.setConfig(populationSize, maxIterations, mutationRate, minWidth, minHeight);
 
         // Define NSGA II
-        Problem<BiochipSolution> problem = new SynthesisProblem(minWidth, minHeight, pathToApp, pathToLib, deviceLibrary);
+        Problem<BiochipSolution> problem = new SynthesisProblem(populationSize, minWidth, minHeight, pathToApp, pathToLib, deviceLibrary);
         CrossoverOperator<BiochipSolution> crossover = new BiochipCrossover();
         MutationOperator<BiochipSolution> mutation = new BiochipMutation(mutationRate, deviceLibrary, null);
 

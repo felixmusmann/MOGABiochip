@@ -20,11 +20,16 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
 
     private OverallConstraintViolation<BiochipSolution> overallConstraintViolation;
     private NumberOfViolatedConstraints<BiochipSolution> numberOfViolatedConstraints;
+    private float highestCost; // gets initialized during creation of initial solutions
+    private float highestCostOffspring;
 
     private DeviceLibrary deviceLibrary;
     private Set<String> requiredDeviceTypes;
 
     private JsonObject appGraph;
+
+    private int populationSize; // used for iteration estimation
+    private int populationIterator;
 
     private int minWidth;
     private int minHeight;
@@ -32,9 +37,14 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
     private String pathToApp;
     private String pathToLib;
 
-    public SynthesisProblem(int minWidth, int minHeight, String pathToApp, String pathToLib, DeviceLibrary deviceLibrary) {
+    public SynthesisProblem(int populationSize, int minWidth, int minHeight, String pathToApp, String pathToLib, DeviceLibrary deviceLibrary) {
         this.overallConstraintViolation = new OverallConstraintViolation<>();
         this.numberOfViolatedConstraints = new NumberOfViolatedConstraints<>();
+        this.highestCostOffspring = 0;
+
+        this.populationSize = populationSize;
+        this.populationIterator = 0;
+
         this.minWidth = minWidth;
         this.minHeight = minHeight;
         this.pathToApp = pathToApp;
@@ -78,7 +88,7 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
         boolean isConnected = true;
         long duration;
 
-        // required devices constraint
+        // CONSTRAINT required devices
         LogTool.startTimer();
         List<Device> devices = solution.getDevices();
         for (String type : requiredDeviceTypes) {
@@ -101,7 +111,7 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
         duration = LogTool.getTimerMillis();
         LOGGER.finer("Required devices constraint " + duration + " ms");
 
-        // connectivity constraint
+        // CONSTRAINT connectivity
         LogTool.startTimer();
         if (!solution.isConnected()) {
             overallConstraintViolation -= 100;
@@ -111,7 +121,7 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
         duration = LogTool.getTimerMillis();
         LOGGER.finer("Connectivity constraint " + duration + " ms");
 
-        // filling constraint
+        // CONSTRAINT filling
         LogTool.startTimer();
         double maxFreeCells = solution.getWidth() * solution.getHeight() * 0.3;
         double numberOfFreeCells = solution.getFreeCells().size();
@@ -122,7 +132,7 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
         duration = LogTool.getTimerMillis();
         LOGGER.finer("Filling constraint " + duration + " ms");
 
-        // min size constraint
+        // CONSTRAINT min size
         LogTool.startTimer();
         if (solution.getWidth() < minWidth || solution.getHeight() < minHeight) {
             overallConstraintViolation -= 10;
@@ -131,13 +141,20 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
         duration = LogTool.getTimerMillis();
         LOGGER.finer("Minimum size constraint " + duration + " ms");
 
-        // Calculate cost
-        LogTool.startTimer();
-        solution.setObjective(0, solution.getCost());
-        duration = LogTool.getTimerMillis();
-        LOGGER.finer("Calculated cost in " + duration + " ms");
+        // REPAIR hole puncher
+        BiochipHolePuncher holePuncher = new BiochipHolePuncher();
+        while (solution.getCost() > highestCost * 1.1) {
+            solution = holePuncher.execute(solution);
+        }
 
-        // Calculate execution time
+        // OBJECTIVE cost
+        float cost = solution.getCost();
+        solution.setObjective(0, cost);
+        if (cost > highestCostOffspring) {
+            highestCostOffspring = cost;
+        }
+
+        // OBJECTIVE execution time
         if (isConnected) {
             double deadline = 10;
             int window = 3;
@@ -156,6 +173,14 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
 
         this.overallConstraintViolation.setAttribute(solution, overallConstraintViolation);
         this.numberOfViolatedConstraints.setAttribute(solution, violatedConstraints);
+
+        populationIterator++;
+        if (populationIterator == populationSize) {
+            // all solutions of the offspring got evaluated
+            if (highestCostOffspring > highestCost) {
+                highestCost = highestCostOffspring;
+            }
+        }
     }
 
     @Override
@@ -165,6 +190,12 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
         long duration = System.currentTimeMillis() - startTime;
         LOGGER.finer("Created solution " + duration + " ms");
         LogTool.incrementGeneratedArchitectures(1);
+
+        float cost = solution.getCost();
+        if (highestCost < cost) {
+            highestCost = cost;
+        }
+
         return solution;
     }
 
