@@ -1,6 +1,6 @@
 [
   {
-    "type": "DISPENSER_SAMPLE",
+    "type": "disS",
     "id": 0,
     "x": 0,
     "y": 0,
@@ -14,7 +14,7 @@
     }
   },
   {
-    "type": "DISPENSER_BUFFER",
+    "type": "disB",
     "id": 1,
     "x": 0,
     "y": 0,
@@ -28,7 +28,7 @@
     }
   },
   {
-    "type": "DISPENSER_REAGENT",
+    "type": "disR",
     "id": 2,
     "x": 0,
     "y": 0,
@@ -42,7 +42,7 @@
     }
   },
   {
-    "type": "OPTICAL_DETECTOR",
+    "type": "opt",
     "id": 3,
     "x": 0,
     "y": 0,
