@@ -7,8 +7,13 @@ import java.util.Random;
 
 public class BiochipHolePuncher {
 
+    private BiochipRepairConnectivity biochipConnectivity;
+
+    public BiochipHolePuncher() {
+        biochipConnectivity = new BiochipRepairConnectivity();
+    }
+
     public BiochipSolution execute(BiochipSolution solution) {
-        solution.shrink();
         Random rnd = new Random();
         int maxWidth = solution.getWidth() / 2;
         int maxHeight = solution.getHeight() / 2;
@@ -23,17 +28,21 @@ public class BiochipHolePuncher {
         int lowerBound = height + startY;
 
         System.out.println(String.format("Punch hole: %dx%d from (%d, %d)", width, height, startX, startY));
-        System.out.println("Before: \n" + solution);
         for (int x = startX; x <= rightBound && x < solution.getWidth(); x++) {
             for (int y = startY; y <= lowerBound && y < solution.getHeight(); y++) {
                 Cell cell = solution.getCell(x, y);
                 if (cell != null && cell instanceof Electrode) {
                     solution.removeElectrode(x, y);
+                    if (!biochipConnectivity.isConnected(solution)) {
+                        // oh no, we destroyed the biochip
+                        solution.addElectrode(x, y);
+                    }
                 }
             }
         }
 
-        System.out.println("After: \n" + solution);
+        // remove blank space around
+        solution.shrink();
 
         return solution;
     }

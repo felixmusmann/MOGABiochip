@@ -100,41 +100,6 @@ public class Biochip extends CellStructure {
         return electrodes.size() + costDevices;
     }
 
-    public boolean isConnected() {
-        // TODO: connectivity only checks electrodes not devices
-        if (electrodes.size() < 1) {
-            return false;
-        }
-
-        ArrayList<Electrode> visitedElectrodes = new ArrayList<>();
-        Electrode electrode = electrodes.get(0);
-        checkConnectivity(electrode, visitedElectrodes);
-        return visitedElectrodes.size() == electrodes.size();
-    }
-
-    private void checkConnectivity(Electrode electrode, List<Electrode> visitedElectrodes) {
-        if (visitedElectrodes.contains(electrode)) {
-            return;
-        }
-
-        visitedElectrodes.add(electrode);
-        int x = electrode.getX();
-        int y = electrode.getY();
-
-        if (getCell(x, y - 1) != null && getCell(x, y - 1) instanceof Electrode) {
-            checkConnectivity((Electrode) getCell(x, y - 1), visitedElectrodes);
-        }
-        if (getCell(x, y + 1) != null && getCell(x, y + 1) instanceof Electrode) {
-            checkConnectivity((Electrode) getCell(x, y + 1), visitedElectrodes);
-        }
-        if (getCell(x - 1, y) != null && getCell(x - 1, y) instanceof Electrode) {
-            checkConnectivity((Electrode) getCell(x - 1, y), visitedElectrodes);
-        }
-        if (getCell(x + 1, y) != null && getCell(x + 1, y) instanceof Electrode) {
-            checkConnectivity((Electrode) getCell(x + 1, y), visitedElectrodes);
-        }
-    }
-
     public Electrode addElectrode(int x, int y) {
         if (getCell(x, y) != null) {
             return null;
@@ -485,7 +450,7 @@ public class Biochip extends CellStructure {
      */
     public void shrink() {
         columnsFromLeft:
-        for (int x = 0; x < getWidth(); x++) {
+        for (int x = 0; x < getWidth();) {
             for (int y = 0; y < getHeight(); y++) {
                 if (getCell(x, y) != null) {
                     break columnsFromLeft;
@@ -505,7 +470,7 @@ public class Biochip extends CellStructure {
         }
 
         rowsFromTop:
-        for (int y = 0; y < getHeight(); y++) {
+        for (int y = 0; y < getHeight();) {
             for (int x = 0; x < getWidth(); x++) {
                 if (getCell(x, y) != null) {
                     break rowsFromTop;

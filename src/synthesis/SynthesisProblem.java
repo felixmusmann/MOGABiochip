@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import org.uma.jmetal.problem.Problem;
 import org.uma.jmetal.util.solutionattribute.impl.NumberOfViolatedConstraints;
 import org.uma.jmetal.util.solutionattribute.impl.OverallConstraintViolation;
-import synthesis.model.Biochip;
 import synthesis.model.Device;
 import synthesis.model.DeviceLibrary;
 import synthesis.model.Electrode;
@@ -88,17 +87,20 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
         boolean isConnected = true;
         long duration;
 
+        // REPAIR connectivity
+        BiochipRepairConnectivity repairConnectivity = new BiochipRepairConnectivity();
+        solution = repairConnectivity.execute(solution);
+        System.out.println(solution);
+
         // REPAIR hole puncher
         BiochipHolePuncher holePuncher = new BiochipHolePuncher();
         // TODO: inject limiting factor
+        LogTool.startTimer();
         while (solution.getCost() > highestCost * 1.1) {
             System.out.println(String.format("Solution %.2f over budget.", highestCost * 1.1 - solution.getCost()));
             solution = holePuncher.execute(solution);
         }
-
-        // REPAIR connectivity
-        BiochipConnectivity connectivity = new BiochipConnectivity();
-        solution = connectivity.execute(solution);
+        System.out.println("Hole puncher took " + LogTool.getTimerMillis());
 
         // CONSTRAINT required devices
         LogTool.startTimer();
@@ -115,6 +117,7 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
 
             if (!foundType) {
                 // TODO: implement repair mechanism?
+                System.err.println("Did not find all required devices.");
                 overallConstraintViolation -= 100;
                 violatedConstraints++;
                 break;
@@ -145,33 +148,31 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
 
         // OBJECTIVE cost
         float cost = solution.getCost();
+        //System.out.print("Cost " + cost);
         solution.setObjective(0, cost);
         if (cost > highestCostOffspring) {
             highestCostOffspring = cost;
         }
 
         // OBJECTIVE execution time
-        if (isConnected) {
-            double deadline = 10;
-            int window = 3;
-            int radius = 5;
+        double deadline = 10;
+        int window = 3;
+        int radius = 5;
 
-            LogTool.startTimer();
-            solution.setObjective(1, solution.getExecutionTime(pathToApp, pathToLib, deadline, window, window, radius, radius));
-            duration = LogTool.getTimerMillis();
-            if (duration > 3000) {
-                String message = String.format("Calculation of execution time\n\tApp completes in %.2f s\n\tCPU time %d ms", solution.getObjective(1), duration);
-                LOGGER.info(message + solution);
-            }
-        } else {
-            solution.setObjective(1, Double.MAX_VALUE);
+        LogTool.startTimer();
+        solution.setObjective(1, solution.getExecutionTime(pathToApp, pathToLib, deadline, window, window, radius, radius));
+        //System.out.println("   Time " + solution.getObjective(1));
+        duration = LogTool.getTimerMillis();
+        if (duration > 3000) {
+            String message = String.format("Calculation of execution time\n\tApp completes in %.2f s\n\tCPU time %d ms", solution.getObjective(1), duration);
+            LOGGER.info(message + solution);
         }
 
         this.overallConstraintViolation.setAttribute(solution, overallConstraintViolation);
         this.numberOfViolatedConstraints.setAttribute(solution, violatedConstraints);
 
         populationIterator++;
-        if (populationIterator == populationSize) {
+        if (populationIterator % populationSize == 0) {
             // all solutions of the offspring got evaluated
             if (highestCostOffspring > highestCost) {
                 highestCost = highestCostOffspring;
