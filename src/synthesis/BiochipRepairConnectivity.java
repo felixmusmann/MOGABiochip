@@ -1,23 +1,16 @@
 package synthesis;
 
-import synthesis.model.Device;
-import synthesis.model.DeviceCell;
-import synthesis.model.Electrode;
+import synthesis.model.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class BiochipRepairConnectivity {
 
-    private static final int MAX_TRIES = 6; // number of tries to find path before deleting (probably redundant) devices on path
-    private int tries;
-
+    private Pair<Integer, Integer>[][] predecessors;
     private ArrayList<Electrode> visitedElectrodes;
     private ArrayList<Electrode> unvisitedElectrodes;
 
     public BiochipRepairConnectivity() {
-        tries = 0;
         visitedElectrodes = new ArrayList<>();
         unvisitedElectrodes = new ArrayList<>();
     }
@@ -30,7 +23,7 @@ public class BiochipRepairConnectivity {
 
         if (!isConnected(solution)) {
             solution = repairConnectivity(solution);
-            solution = execute(solution);
+            solution = execute(solution); // repeat if there are still multiple components
         }
 
         return solution;
@@ -78,95 +71,71 @@ public class BiochipRepairConnectivity {
         Electrode visitedElectrode = visitedElectrodes.get(rndVisitedIndex);
         Electrode unvisitedElectrode = unvisitedElectrodes.get(rndUnvisitedIndex);
 
-        Electrode source = visitedElectrode;
-        Electrode target = unvisitedElectrode;
+        // add buffer around chip so we can go around devices
+        solution.addColumn(0);
+        solution.addColumn(solution.getWidth());
+        solution.addRow(0);
+        solution.addRow(solution.getHeight());
+        solution = buildPath(solution, visitedElectrode, unvisitedElectrode);
+        solution.shrink();
 
-        if (isDeviceOnPath(solution, source, target)) {
-            // try different path from target to source
-            source = unvisitedElectrode;
-            target = visitedElectrode;
-        }
-
-        if (isDeviceOnPath(solution, source, target)) {
-            // try with new electrodes
-            return repairConnectivity(solution);
-        }
-
-        return connectElectrodes(solution, source, target);
+        return solution;
     }
 
-    private boolean isDeviceOnPath(BiochipSolution solution, Electrode source, Electrode target) {
-        tries++;
-        int x = source.getX();
-        int y = source.getY();
+    private BiochipSolution buildPath(BiochipSolution solution, Electrode source, Electrode target) {
+        predecessors = (Pair<Integer, Integer>[][]) new Pair[solution.getWidth()][solution.getHeight()];
 
-        // Check for devices on path
-        while (target.getX() - x != 0) {
-            if (solution.getCell(x, y) != null && solution.getCell(x, y) instanceof DeviceCell) {
-                if (tries > MAX_TRIES) {
-                    Device device = ((DeviceCell) solution.getCell(x, y)).getLinkedDevice();
-                    solution.removeDevice(device);
-                } else {
-                    return true;
-                }
+        searchPath(solution, source.getX(), source.getY(), target.getX(), target.getY());
+
+        int x = target.getX();
+        int y = target.getY();
+        Pair<Integer, Integer> predecessor;
+
+        while (x != source.getX() || y != source.getY()) {
+            predecessor = predecessors[x][y];
+            if (predecessor == null) {
+                System.out.println("That shouldn't happen!");
             }
-
-            if (target.getX() > x) {
-                x++;
-            } else {
-                x--;
-            }
-        }
-
-        while (target.getY() - y != 0) {
-            if (solution.getCell(x, y) != null && solution.getCell(x, y) instanceof DeviceCell) {
-                if (tries > MAX_TRIES) {
-                    Device device = ((DeviceCell) solution.getCell(x, y)).getLinkedDevice();
-                    solution.removeDevice(device);
-                } else {
-                    return true;
-                }
-            }
-
-            if (target.getY() > y) {
-                y++;
-            } else {
-                y--;
-            }
-        }
-
-        return false;
-    }
-
-    private BiochipSolution connectElectrodes(BiochipSolution solution, Electrode source, Electrode target) {
-        int x = source.getX();
-        int y = source.getY();
-
-        // Add path of electrodes
-        while (target.getX() - x != 0) {
-            if (solution.getCell(x, y) == null) {
-                solution.addElectrode(x, y);
-            }
-
-            if (target.getX() > x) {
-                x++;
-            } else {
-                x--;
-            }
-        }
-
-        while (target.getY() - y != 0) {
-            if (solution.getCell(x, y) == null) {
-                solution.addElectrode(x, y);
-            }
-
-            if (target.getY() > y) {
-                y++;
-            } else {
-                y--;
-            }
+            x = predecessor.fst;
+            y = predecessor.snd;
+            solution.addElectrode(x, y);
         }
 
         return solution;
+    }
+
+    private void searchPath(BiochipSolution solution, int sourceX, int sourceY, int targetX, int targetY) {
+        LinkedList<Pair<Integer, Integer>> queue = new LinkedList<>();
+        int[] deltaX = {1, -1, 0, 0};
+        int[] deltaY = {0, 0, 1, -1};
+
+        queue.add(new Pair<>(sourceX, sourceY));
+        Pair<Integer, Integer> current;
+
+        bfs:
+        while (!queue.isEmpty()) {
+            current = queue.poll();
+            for (int i = 0; i < deltaX.length; i++) {
+                // go to all neighbors
+                int x = current.fst + deltaX[i];
+                int y = current.snd + deltaY[i];
+                if (validNeighbour(solution, x, y) && predecessors[x][y] == null) {
+                    // set predecessor of neighbor
+                    predecessors[x][y] = current;
+                    queue.add(new Pair<>(x, y));
+                    if (x == targetX && y == targetY) {
+                        // we reached our target
+                        break bfs;
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean validNeighbour(BiochipSolution solution, int x, int y) {
+        Cell cell = solution.getCell(x, y);
+        boolean inBounds = x < solution.getWidth() && x >= 0 && y < solution.getHeight() && y >= 0;
+        boolean isElectrodeOrNull = cell == null || cell instanceof Electrode;
+        return inBounds && isElectrodeOrNull;
     }
 }
