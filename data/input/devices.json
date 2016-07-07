@@ -14,6 +14,62 @@
     }
   },
   {
+    "type": "disS",
+    "id": 0,
+    "x": 0,
+    "y": 0,
+    "executionTime": 2,
+    "cost": 3,
+    "shape": {
+      "width": 5,
+      "height": 3,
+      "startX": 4,
+      "startY": 0
+    }
+  },
+  {
+    "type": "disS",
+    "id": 0,
+    "x": 0,
+    "y": 0,
+    "executionTime": 2,
+    "cost": 3,
+    "shape": {
+      "width": 5,
+      "height": 3,
+      "startX": 0,
+      "startY": 2
+    }
+  },
+  {
+    "type": "disS",
+    "id": 0,
+    "x": 0,
+    "y": 0,
+    "executionTime": 2,
+    "cost": 3,
+    "shape": {
+      "width": 5,
+      "height": 3,
+      "startX": 4,
+      "startY": 2
+    }
+  },
+  {
+    "type": "disB",
+    "id": 1,
+    "x": 0,
+    "y": 0,
+    "executionTime": 2,
+    "cost": 3,
+    "shape": {
+      "width": 5,
+      "height": 2,
+      "startX": 0,
+      "startY": 1
+    }
+  },
+  {
     "type": "disB",
     "id": 1,
     "x": 0,
@@ -24,6 +80,34 @@
       "width": 5,
       "height": 2,
       "startX": 3,
+      "startY": 0
+    }
+  },
+  {
+    "type": "disB",
+    "id": 1,
+    "x": 0,
+    "y": 0,
+    "executionTime": 2,
+    "cost": 3,
+    "shape": {
+      "width": 5,
+      "height": 2,
+      "startX": 2,
+      "startY": 1
+    }
+  },
+  {
+    "type": "disB",
+    "id": 1,
+    "x": 0,
+    "y": 0,
+    "executionTime": 2,
+    "cost": 3,
+    "shape": {
+      "width": 5,
+      "height": 2,
+      "startX": 0,
       "startY": 0
     }
   },
@@ -39,6 +123,48 @@
       "height": 2,
       "startX": 3,
       "startY": 1
+    }
+  },
+  {
+    "type": "disR",
+    "id": 2,
+    "x": 0,
+    "y": 0,
+    "executionTime": 2,
+    "cost": 3,
+    "shape": {
+      "width": 4,
+      "height": 2,
+      "startX": 0,
+      "startY": 0
+    }
+  },
+  {
+    "type": "disR",
+    "id": 2,
+    "x": 0,
+    "y": 0,
+    "executionTime": 2,
+    "cost": 3,
+    "shape": {
+      "width": 4,
+      "height": 2,
+      "startX": 0,
+      "startY": 1
+    }
+  },
+  {
+    "type": "disR",
+    "id": 2,
+    "x": 0,
+    "y": 0,
+    "executionTime": 2,
+    "cost": 3,
+    "shape": {
+      "width": 4,
+      "height": 2,
+      "startX": 3,
+      "startY": 0
     }
   },
   {
