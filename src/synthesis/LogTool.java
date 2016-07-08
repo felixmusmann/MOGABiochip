@@ -114,6 +114,7 @@ public class LogTool {
             result.addProperty("cost", solution.getObjective(0));
             result.addProperty("execution-time-in-seconds", solution.getObjective(1));
             result.addProperty("architecture", solution.toString());
+            result.add("json", JSONParser.convertBiochip(solution));
             results.add(result);
         }
         sessionResults.add("results", results);

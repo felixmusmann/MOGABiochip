@@ -31,9 +31,24 @@ public class Device extends CellStructure {
     }
 
     public Device(String type, int id, int x, int y, int executionTime, int cost, Shape shape) {
-        this(type, id, executionTime, cost, shape);
+        super(shape.getWidth(), shape.getHeight());
         this.x = x;
         this.y = y;
+        this.type = type;
+        this.id = id;
+        this.executionTime = executionTime;
+        this.cost = cost;
+
+        // fill with device cells
+        for (x = 0; x < getWidth(); x++) {
+            for (y = 0; y < getHeight(); y++) {
+                DeviceCell deviceCell = new DeviceCell(x + this.x, y + this.y, this);
+                setCell(x, y, deviceCell);
+            }
+        }
+
+        startCell = (DeviceCell) getCell(shape.getStartX() - this.x, shape.getStartY() - this.y);
+        startCell.setStartCell(true);
     }
 
     public Device(Device other) {

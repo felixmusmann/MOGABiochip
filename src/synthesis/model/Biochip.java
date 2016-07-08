@@ -33,7 +33,7 @@ public class Biochip extends CellStructure {
 
         if (devices != null) {
             for (Device device : devices) {
-                addDevice(device, device.getX(), device.getY());
+                addDevice(device, device.getStartCell().getX(), device.getStartCell().getY());
             }
         }
     }

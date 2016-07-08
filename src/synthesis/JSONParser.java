@@ -55,10 +55,7 @@ public class JSONParser {
         return new Biochip(width, height, inactiveElectrodes, devices);
     }
 
-    public static void saveBiochip(Biochip arch, String filename) throws IOException {
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        FileWriter out = new FileWriter(filename);
-
+    public static JsonObject convertBiochip(Biochip arch) {
         JsonObject archObject = new JsonObject();
         archObject.addProperty("width", arch.getWidth());
         archObject.addProperty("height", arch.getHeight());
@@ -73,7 +70,7 @@ public class JSONParser {
         archObject.add("inactiveElectrodes", inactiveElectrodeArray);
 
         JsonArray deviceArray = new JsonArray();
-        for (synthesis.model.Device device : arch.getDevices()) {
+        for (Device device : arch.getDevices()) {
             JsonObject deviceJson = new JsonObject();
             JsonObject shapeJson = new JsonObject();
             deviceJson.addProperty("type", device.getType());
@@ -87,9 +84,18 @@ public class JSONParser {
             shapeJson.addProperty("startX", device.getStartCell().getX());
             shapeJson.addProperty("startY", device.getStartCell().getY());
             deviceJson.add("shape", shapeJson);
-            deviceArray.add(gson.toJsonTree(device));
+            deviceArray.add(deviceJson);
         }
         archObject.add("devices", deviceArray);
+
+        return archObject;
+    }
+
+    public static void saveBiochip(Biochip arch, String filename) throws IOException {
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        FileWriter out = new FileWriter(filename);
+
+        JsonObject archObject = convertBiochip(arch);
 
         out.write(gson.toJson(archObject));
         out.flush();
