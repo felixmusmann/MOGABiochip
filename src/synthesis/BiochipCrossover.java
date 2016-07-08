@@ -18,10 +18,10 @@ public class BiochipCrossover implements CrossoverOperator<BiochipSolution> {
         ArrayList<BiochipSolution> offspring = new ArrayList<>();
         Random rnd = new Random();
 
+        // Split biochips
         ArrayList<Biochip[]> splitBiochips = new ArrayList<>();
         for (Biochip biochip : biochips) {
             double decider;
-            biochip.shrink();
 
             int electrodeIndex = rnd.nextInt(biochip.getElectrodes().size());
             Electrode electrode = biochip.getElectrodes().get(electrodeIndex);
@@ -42,23 +42,35 @@ public class BiochipCrossover implements CrossoverOperator<BiochipSolution> {
 
         // First crossover horizontal
         decider = rnd.nextInt(2);
-        first = splitBiochips.get(0)[decider].getHeight() > 0 ? splitBiochips.get(0)[decider] : splitBiochips.get(0)[1 - decider];
-        second = splitBiochips.get(1)[1 - decider].getHeight() > 0 ? splitBiochips.get(1)[1 - decider] : splitBiochips.get(1)[decider];
-        int rowFirst = rnd.nextInt(first.getHeight());
-        int rowSecond = rnd.nextInt(second.getHeight());
+        first = splitBiochips.get(0)[decider].getElectrodes().size() > 0 ? splitBiochips.get(0)[decider] : splitBiochips.get(0)[1 - decider];
+        second = splitBiochips.get(1)[1 - decider].getElectrodes().size() > 0 ? splitBiochips.get(1)[1 - decider] : splitBiochips.get(1)[decider];
+        first.shrink();
+        second.shrink();
+
+        int rowFirst = getRandomElectrode(first).getY();
+        int rowSecond = getRandomElectrode(second).getY();
         Biochip mergedBiochip = Biochip.mergeHorizontal(first, second, rowFirst, rowSecond);
         offspring.add(new BiochipSolution(mergedBiochip));
 
         // Second crossover vertical
         decider = rnd.nextInt(2);
-        first = splitBiochips.get(0)[1 - decider].getWidth() > 0 ? splitBiochips.get(0)[1 - decider] : splitBiochips.get(0)[decider];
-        second = splitBiochips.get(1)[decider].getWidth() > 0 ? splitBiochips.get(1)[decider] : splitBiochips.get(1)[1 - decider];
-        int columnFirst = rnd.nextInt(first.getWidth());
-        int columnSecond = rnd.nextInt(second.getWidth());
+        first = splitBiochips.get(0)[1 - decider].getElectrodes().size() > 0 ? splitBiochips.get(0)[1 - decider] : splitBiochips.get(0)[decider];
+        second = splitBiochips.get(1)[decider].getElectrodes().size() > 0 ? splitBiochips.get(1)[decider] : splitBiochips.get(1)[1 - decider];
+        first.shrink();
+        second.shrink();
+
+        int columnFirst = getRandomElectrode(first).getX();
+        int columnSecond = getRandomElectrode(second).getX();
         mergedBiochip = Biochip.mergeVertical(first, second, columnFirst, columnSecond);
         offspring.add(new BiochipSolution(mergedBiochip));
 
         LogTool.incrementGeneratedArchitectures(2);
         return offspring;
+    }
+
+    private Electrode getRandomElectrode(Biochip biochip) {
+        Random rnd = new Random();
+        int rndIndex = rnd.nextInt(biochip.getElectrodes().size());
+        return biochip.getElectrodes().get(rndIndex);
     }
 }
