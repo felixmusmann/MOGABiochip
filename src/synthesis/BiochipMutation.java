@@ -12,8 +12,6 @@ public class BiochipMutation implements MutationOperator<BiochipSolution> {
 
     private Random rnd;
     private double mutationRate;
-    private Set<String> requiredDeviceTypes;
-    private DeviceLibrary deviceLibrary;
 
     public enum Type {
         ADD_ELECTRODE, REMOVE_ELECTRODE, ADD_COLUMN, REMOVE_COLUMN, ADD_ROW, REMOVE_ROW, REMOVE_DEVICE; // TODO: ADD_DEVICE;
@@ -32,20 +30,21 @@ public class BiochipMutation implements MutationOperator<BiochipSolution> {
         }
     }
 
-    public BiochipMutation(double mutationRate, DeviceLibrary deviceLibrary, Set<String> requiredDeviceTypes) {
+    public BiochipMutation(double mutationRate) {
         this.rnd = new Random();
         this.mutationRate = mutationRate;
-        this.requiredDeviceTypes = requiredDeviceTypes;
-        this.deviceLibrary = deviceLibrary;
     }
 
     @Override
-    public BiochipSolution execute(BiochipSolution biochipSolution) {
+    public BiochipSolution execute(BiochipSolution solution) {
         if (rnd.nextDouble() < mutationRate) {
-            mutate(biochipSolution);
+            BiochipSolution mutatedSolution = mutate(new BiochipSolution(solution));
+            if (mutatedSolution.getElectrodes().size() > 0) {
+                return mutatedSolution;
+            }
         }
 
-        return biochipSolution;
+        return solution;
     }
 
     /**
@@ -55,7 +54,7 @@ public class BiochipMutation implements MutationOperator<BiochipSolution> {
      *
      * @return mutated biochip
      */
-    private Biochip mutate(Biochip biochip) {
+    public BiochipSolution mutate(BiochipSolution biochip) {
         Type mutation = Type.getRandom();
 
         switch (mutation) {
@@ -93,7 +92,7 @@ public class BiochipMutation implements MutationOperator<BiochipSolution> {
      * @param mutation  mutation that will be applied to biochip
      * @return biochip with specific mutation
      */
-    private Biochip mutate(Biochip biochip, Type mutation) {
+    public BiochipSolution mutate(BiochipSolution biochip, Type mutation) {
         Random random = new Random();
 
         switch (mutation) {
