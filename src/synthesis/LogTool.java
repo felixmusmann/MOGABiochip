@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
+import java.nio.file.AccessDeniedException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.*;
@@ -23,7 +24,9 @@ public class LogTool {
     private static ThreadMXBean mxBean = ManagementFactory.getThreadMXBean();
     private static long timer;
 
-    // input files
+    // files
+    private static final String RESULTS_PATH = "data/results/";
+    private static final String LOG_PATH = "data/logs/";
     private static String graphFile;
     private static String libraryFile;
     private static String devicesFile;
@@ -40,10 +43,15 @@ public class LogTool {
     private static BiochipSolution[] solutions;
 
     public static void initializeLogger(Level logLevel, String logFile) throws IOException {
-        final String path = "data/logs/";
         Logger logger = Logger.getGlobal();
-        logger.setLevel(logLevel);
         logger.setUseParentHandlers(false);
+        logger.setLevel(logLevel);
+
+        // check if results file writeable
+        File resultsFile = new File(RESULTS_PATH + graphFile + "_results.json");
+        if (resultsFile.exists() && !resultsFile.canWrite()) {
+            throw new AccessDeniedException("Cannot write to file: " + resultsFile.getCanonicalPath());
+        }
 
         String filename = logFile + ".%d.log";
         int indexOfLastSlash = filename.lastIndexOf("/");
@@ -55,10 +63,10 @@ public class LogTool {
         int count = 0;
         do  {
             count++;
-            file = new File(path + String.format(filename, count));
+            file = new File(LOG_PATH + String.format(filename, count));
         } while (file.exists());
 
-        txtFile = new FileHandler(path + String.format(filename, count));
+        txtFile = new FileHandler(LOG_PATH + String.format(filename, count));
         txtFormatter = new SimpleFormatter();
 
         txtFile.setFormatter(txtFormatter);
@@ -66,7 +74,6 @@ public class LogTool {
     }
 
     public static void saveResults() throws IOException {
-        final String path = "data/results/";
         String filename = graphFile + "_results.json";
         int indexOfLastSlash = filename.lastIndexOf("/");
         if (indexOfLastSlash != -1) {
@@ -112,7 +119,7 @@ public class LogTool {
         sessionResults.add("results", results);
 
 
-        File file = new File(path + filename);
+        File file = new File(RESULTS_PATH + filename);
         JsonArray content = new JsonArray();
         if (file.exists()) {
             JsonParser parser = new JsonParser();

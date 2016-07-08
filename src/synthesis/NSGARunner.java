@@ -22,6 +22,7 @@ public class NSGARunner extends AbstractAlgorithmRunner {
         double mutationRate = Double.valueOf(args[2]);
         int minWidth = Integer.valueOf(args[3]);
         int minHeight = Integer.valueOf(args[4]);
+        double costLimiter = 1.1;
         String pathToApp = args[5];
         String pathToLib = args[6];
         String pathToDevices = args[7];
@@ -31,18 +32,18 @@ public class NSGARunner extends AbstractAlgorithmRunner {
 
         // Initialize logger
         try {
-            LogTool.initializeLogger(Level.INFO, pathToApp);
+            LogTool.setInputFiles(pathToApp, pathToLib, pathToDevices);
+            LogTool.setConfig(populationSize, maxIterations, mutationRate, minWidth, minHeight);
+            LogTool.initializeLogger(Level.FINEST, pathToApp);
         } catch (IOException e) {
             e.printStackTrace();
-            throw new RuntimeException("Problem with creating log file: " + pathToApp);
+            return;
         }
-        LogTool.setInputFiles(pathToApp, pathToLib, pathToDevices);
-        LogTool.setConfig(populationSize, maxIterations, mutationRate, minWidth, minHeight);
 
         // Define NSGA II
-        Problem<BiochipSolution> problem = new SynthesisProblem(populationSize, minWidth, minHeight, pathToApp, pathToLib, deviceLibrary);
+        Problem<BiochipSolution> problem = new SynthesisProblem(populationSize, costLimiter, minWidth, minHeight, pathToApp, pathToLib, deviceLibrary);
         CrossoverOperator<BiochipSolution> crossover = new BiochipCrossover();
-        MutationOperator<BiochipSolution> mutation = new BiochipMutation(mutationRate, deviceLibrary, null);
+        MutationOperator<BiochipSolution> mutation = new BiochipMutation(mutationRate);
 
         NSGAII<BiochipSolution> algorithm = new NSGAIIBuilder<>(problem, crossover, mutation)
                 .setMaxIterations(maxIterations)
@@ -53,6 +54,11 @@ public class NSGARunner extends AbstractAlgorithmRunner {
         LogTool.setStartTime(System.currentTimeMillis());
         new AlgorithmRunner.Executor(algorithm).execute();
         LogTool.setEndTime(System.currentTimeMillis());
+
+        for (BiochipSolution solution :
+                algorithm.getResult()) {
+            System.out.println(solution + "" + solution.getObjective(0) + "\t" + solution.getObjective(1));
+        }
 
         // Save results
         LogTool.setSolutions(algorithm.getResult());

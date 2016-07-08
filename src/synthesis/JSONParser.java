@@ -112,7 +112,7 @@ public class JSONParser {
             return deviceLibrary;
         } catch (Exception exception) {
             exception.printStackTrace();
-            return null;
+            throw new RuntimeException("Something is wrong with the device library file.");
         }
     }
 
