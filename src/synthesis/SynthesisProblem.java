@@ -17,10 +17,14 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
 
     private final static Logger LOGGER = Logger.getGlobal();
 
+    private final static int DEADLINE = 10;
+    private final static int RADIUS = 5;
+    private final static int WINDOW = 3;
+
     private OverallConstraintViolation<BiochipSolution> overallConstraintViolation;
     private NumberOfViolatedConstraints<BiochipSolution> numberOfViolatedConstraints;
-    private float highestCost; // gets initialized during creation of initial solutions
-    private float highestCostOffspring;
+    private double highestCost; // gets initialized during creation of initial solutions
+    private double highestCostOffspring;
 
     private DeviceLibrary deviceLibrary;
     private Set<String> requiredDeviceTypes;
@@ -28,22 +32,24 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
     private JsonObject appGraph;
 
     private int populationSize; // used for iteration estimation
-    private int populationIterator;
+    private int populationCounter;
 
+    private double costLimiter;
     private int minWidth;
     private int minHeight;
 
     private String pathToApp;
     private String pathToLib;
 
-    public SynthesisProblem(int populationSize, int minWidth, int minHeight, String pathToApp, String pathToLib, DeviceLibrary deviceLibrary) {
+    public SynthesisProblem(int populationSize, double costLimiter, int minWidth, int minHeight, String pathToApp, String pathToLib, DeviceLibrary deviceLibrary) {
         this.overallConstraintViolation = new OverallConstraintViolation<>();
         this.numberOfViolatedConstraints = new NumberOfViolatedConstraints<>();
         this.highestCostOffspring = 0;
 
         this.populationSize = populationSize;
-        this.populationIterator = 0;
+        this.populationCounter = 0;
 
+        this.costLimiter = costLimiter;
         this.minWidth = minWidth;
         this.minHeight = minHeight;
         this.pathToApp = pathToApp;
@@ -82,29 +88,75 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
 
     @Override
     public void evaluate(BiochipSolution solution) {
-        double overallConstraintViolation = 0;
-        int violatedConstraints = 0;
-        boolean isConnected = true;
         long duration;
 
+        if (solution.getElectrodes().size() == 0) {
+            System.out.println("Hm...");
+        }
+
+        solution = repairSolution(solution);
+
+        // OBJECTIVE cost
+        double cost = solution.getCost();
+        solution.setObjective(0, cost);
+        if (cost > highestCostOffspring) {
+            highestCostOffspring = cost;
+        }
+
+        // OBJECTIVE execution time
+        LogTool.startTimer();
+        double executionTime = solution.getExecutionTime(pathToApp, pathToLib, DEADLINE, WINDOW, WINDOW, RADIUS, RADIUS);
+        duration = LogTool.getTimerMillis();
+        if (executionTime == 0)
+            executionTime = Double.MAX_VALUE;
+        solution.setObjective(1, executionTime);
+
+        if (duration > 3000) {
+            String message = String.format("Calculation of execution time\n\tApp completes in %.2f s\n\tCPU time %d ms", solution.getObjective(1), duration);
+            LOGGER.warning(message + solution);
+        }
+
+        LOGGER.info(String.format("Cost\t%.0f\tTime\t%.2f\n%s", solution.getObjective(0), solution.getObjective(1), solution));
+
+        evaluateConstraints(solution);
+
+        afterEvaluation();
+    }
+
+    private BiochipSolution repairSolution(BiochipSolution solution) {
         // REPAIR connectivity
         BiochipRepairConnectivity repairConnectivity = new BiochipRepairConnectivity();
         solution = repairConnectivity.execute(solution);
-        System.out.println(solution);
 
-        // REPAIR hole puncher
+        // REPAIR missing devices
+        BiochipRepairDevices repairDevices = new BiochipRepairDevices(deviceLibrary, requiredDeviceTypes);
+        solution = repairDevices.execute(solution);
+
+        // REPAIR cost (punch holes)
         BiochipHolePuncher holePuncher = new BiochipHolePuncher();
-        // TODO: inject limiting factor
         LogTool.startTimer();
-        while (solution.getCost() > highestCost * 1.1) {
-            System.out.println(String.format("Solution %.2f over budget.", highestCost * 1.1 - solution.getCost()));
-            solution = holePuncher.execute(solution);
+        int iterations = 0;
+        if (solution.getCost() > (highestCost * costLimiter)) System.out.println(solution);
+        while (iterations < 12 && solution.getCost() > (highestCost * costLimiter)) {
+            System.out.println(String.format("Solution %.2f over budget %.2f.", solution.getCost(), highestCost * 1.1));
+            solution = holePuncher.execute(solution, false);
+            System.out.println("After hole punching: " + solution.getCost());
+            iterations++;
         }
-        System.out.println("Hole puncher took " + LogTool.getTimerMillis());
+        LOGGER.fine("Repair cost: " + LogTool.getTimerMillis() + " ms");
 
-        // CONSTRAINT required devices
-        LogTool.startTimer();
+
+        return solution;
+    }
+
+    private void evaluateConstraints(BiochipSolution solution) {
+        double violation = 0;
+        double overallConstraintViolation = 0;
+        int violatedConstraints = 0;
+
+        // CONSTRAINT devices
         List<Device> devices = solution.getDevices();
+        boolean deviceConstraint = true;
         for (String type : requiredDeviceTypes) {
             boolean foundType = false;
 
@@ -116,64 +168,49 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
             }
 
             if (!foundType) {
-                // TODO: implement repair mechanism?
-                System.err.println("Did not find all required devices.");
-                overallConstraintViolation -= 100;
+                violation -= 10;;
                 violatedConstraints++;
-                break;
+                deviceConstraint = false;
             }
         }
-        duration = LogTool.getTimerMillis();
-        LOGGER.finer("Required devices constraint " + duration + " ms");
+
+        if (!deviceConstraint) {
+            overallConstraintViolation += violation;
+            LOGGER.finer("Device violation " + violation);
+        }
 
         // CONSTRAINT filling
-        LogTool.startTimer();
-        double maxFreeCells = solution.getWidth() * solution.getHeight() * 0.3;
+        double maxFreeCells = solution.getWidth() * solution.getHeight() * 0.5;
         double numberOfFreeCells = solution.getFreeCells().size();
-        if (numberOfFreeCells > maxFreeCells) {
-            overallConstraintViolation -= numberOfFreeCells / maxFreeCells;
+        boolean fillingConstraint = numberOfFreeCells <= maxFreeCells;
+        if (!fillingConstraint) {
+            violation = 100 * numberOfFreeCells / maxFreeCells;
+            overallConstraintViolation -= violation;
             violatedConstraints++;
+            LOGGER.finer("Filling violation " + violation);
         }
-        duration = LogTool.getTimerMillis();
-        LOGGER.finer("Filling constraint " + duration + " ms");
 
         // CONSTRAINT min size
-        LogTool.startTimer();
-        if (solution.getWidth() < minWidth || solution.getHeight() < minHeight) {
-            overallConstraintViolation -= 10;
+        boolean minSizeConstraint = solution.getWidth() >= minWidth && solution.getHeight() >= minHeight;
+        if (!minSizeConstraint) {
+            violation = (minWidth - solution.getWidth()) + (minHeight - solution.getHeight());
+            overallConstraintViolation -= violation;
             violatedConstraints++;
-        }
-        duration = LogTool.getTimerMillis();
-        LOGGER.finer("Minimum size constraint " + duration + " ms");
-
-        // OBJECTIVE cost
-        float cost = solution.getCost();
-        //System.out.print("Cost " + cost);
-        solution.setObjective(0, cost);
-        if (cost > highestCostOffspring) {
-            highestCostOffspring = cost;
-        }
-
-        // OBJECTIVE execution time
-        double deadline = 10;
-        int window = 3;
-        int radius = 5;
-
-        LogTool.startTimer();
-        solution.setObjective(1, solution.getExecutionTime(pathToApp, pathToLib, deadline, window, window, radius, radius));
-        //System.out.println("   Time " + solution.getObjective(1));
-        duration = LogTool.getTimerMillis();
-        if (duration > 3000) {
-            String message = String.format("Calculation of execution time\n\tApp completes in %.2f s\n\tCPU time %d ms", solution.getObjective(1), duration);
-            LOGGER.info(message + solution);
+            LOGGER.finer("Minimum size violation: " + violation);
         }
 
         this.overallConstraintViolation.setAttribute(solution, overallConstraintViolation);
         this.numberOfViolatedConstraints.setAttribute(solution, violatedConstraints);
+    }
 
-        populationIterator++;
-        if (populationIterator % populationSize == 0) {
-            // all solutions of the offspring got evaluated
+    private void afterEvaluation() {
+        populationCounter++;
+
+        // if offspring is evaluated
+        if (populationCounter % populationSize == 0) {
+            int generation = populationCounter / populationSize;
+            System.out.println("Generation: " + generation);
+
             if (highestCostOffspring > highestCost) {
                 highestCost = highestCostOffspring;
             }
