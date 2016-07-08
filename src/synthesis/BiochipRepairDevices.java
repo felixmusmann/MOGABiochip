@@ -48,43 +48,50 @@ public class BiochipRepairDevices {
         List<Device> possibleDevices = deviceLibrary.getDevicesByType(type);
         Collections.shuffle(possibleDevices);
 
-        // try to place any of the possible devices
+        // try to place any of the possible devices and rotation
         boolean placedDevice = false;
+        loopDevices:
         for (Device device : possibleDevices) {
-            ArrayList<Orientation> orientations = new ArrayList<>(4);
-
-            // determine possible orientations for device
-            if (device.getStartCell().getY() == 0) {
-                orientations.add(Orientation.TOP);
-            }
-            if (device.getStartCell().getX() == device.getWidth() - 1) {
-                orientations.add(Orientation.RIGHT);
-            }
-            if (device.getStartCell().getY() == device.getHeight() - 1) {
-                orientations.add(Orientation.BOTTOM);
-            }
-            if (device.getStartCell().getX() == 0) {
-                orientations.add(Orientation.LEFT);
-            }
-
-            Electrode electrode = null;
-            Orientation orientation = null;
-
-            // try every orientation of this device
-            for (Orientation currentOrientation : orientations) {
-                electrode = findConnectingElectrode(solution, device, currentOrientation);
-                if (electrode != null) {
-                    orientation = currentOrientation;
-                    break;
+            for (int i = 0; i < 4; i++) {
+                if (i != 0) {
+                    device = device.getRotatedCopy();
                 }
-            }
 
-            // we found a place
-            if (electrode != null) {
-                Pair<Integer, Integer> coordinates = getCoordinatesForPlacement(electrode, orientation);
-                solution.addDevice(device, coordinates.fst, coordinates.snd);
-                placedDevice = true;
-                break;
+                ArrayList<Orientation> orientations = new ArrayList<>(4);
+
+                // determine possible orientations for device
+                if (device.getStartCell().getY() == 0) {
+                    orientations.add(Orientation.TOP);
+                }
+                if (device.getStartCell().getX() == device.getWidth() - 1) {
+                    orientations.add(Orientation.RIGHT);
+                }
+                if (device.getStartCell().getY() == device.getHeight() - 1) {
+                    orientations.add(Orientation.BOTTOM);
+                }
+                if (device.getStartCell().getX() == 0) {
+                    orientations.add(Orientation.LEFT);
+                }
+
+                Electrode electrode = null;
+                Orientation orientation = null;
+
+                // try every orientation of this device
+                for (Orientation currentOrientation : orientations) {
+                    electrode = findConnectingElectrode(solution, device, currentOrientation);
+                    if (electrode != null) {
+                        orientation = currentOrientation;
+                        break;
+                    }
+                }
+
+                // we found a place
+                if (electrode != null) {
+                    Pair<Integer, Integer> coordinates = getCoordinatesForPlacement(electrode, orientation);
+                    solution.addDevice(device, coordinates.fst, coordinates.snd);
+                    placedDevice = true;
+                    break loopDevices;
+                }
             }
         }
 

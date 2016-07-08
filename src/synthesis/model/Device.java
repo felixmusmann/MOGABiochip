@@ -123,6 +123,13 @@ public class Device extends CellStructure {
         return cost;
     }
 
+    public Device getRotatedCopy() {
+        int startX = this.getHeight() - this.getStartCell().getY() - 1;
+        int startY = this.getStartCell().getX();
+        Shape shape = new Shape(this.getHeight(), this.getWidth(), startX, startY);
+        return new Device(this.type, this.id, this.executionTime, this.cost, shape);
+    }
+
     @Override
     void updateOperations() {}
 }
