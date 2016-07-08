@@ -29,9 +29,9 @@ public class BiochipHolePuncher {
         int startX = electrode.getX();
         int startY = electrode.getY();
         int radius = Math.max(maxHeight, maxWidth);
-        boolean[][] removableElectrodes;
+        boolean[][] removableElectrodes = null;
 
-        if (tries > 10) {
+        if (tries > 9) {
             // we tried, lets remove all that are not necessary
             removableElectrodes = new boolean[solution.getWidth()][solution.getHeight()];
             for (Electrode electrodeI : solution.getElectrodes()) {
@@ -39,36 +39,25 @@ public class BiochipHolePuncher {
                 int y = electrodeI.getY();
                 removableElectrodes[x][y] = removableNeighbour(solution, x, y);
             }
+        } else if (tries > 10) {
+            // maybe we can remove an device
+            BiochipMutation mutation = new BiochipMutation(0);
+            solution = mutation.mutate(solution, BiochipMutation.Type.REMOVE_DEVICE);
         } else {
             removableElectrodes = labelElectrodes(solution, radius, startX, startY);
         }
 
-        for (int x = 0; x < solution.getWidth(); x++) {
-            for (int y = 0; y < solution.getHeight(); y++) {
-                if (removableElectrodes[x][y]) {
-                    solution.removeElectrode(x, y);
+        if (removableElectrodes != null) {
+            for (int x = 0; x < solution.getWidth(); x++) {
+                for (int y = 0; y < solution.getHeight(); y++) {
+                    if (removableElectrodes[x][y]) {
+                        solution.removeElectrode(x, y);
+                    }
                 }
             }
         }
 
-//        LOGGER.fine(String.format("Punch hole: %dx%d from (%d, %d)", width, height, startX, startY));
-//        for (int x = startX; x <= rightBound && x < solution.getWidth(); x++) {
-//            for (int y = startY; y <= lowerBound && y < solution.getHeight(); y++) {
-//                Cell cell = solution.getCell(x, y);
-//                if (cell != null && cell instanceof Electrode) {
-//                    solution.removeElectrode(x, y);
-//                    if (checkConnectivity && !biochipConnectivity.isConnected(solution)) {
-//                        // oh no, we destroyed the biochip
-//                        solution.addElectrode(x, y);
-//                    }
-//                }
-//            }
-//        }
-
-        // remove blank space around
-        solution.shrink();
         tries++;
-
         return solution;
     }
 
