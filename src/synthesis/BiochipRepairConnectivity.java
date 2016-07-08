@@ -153,10 +153,14 @@ public class BiochipRepairConnectivity {
                     BiochipMutation mutation = new BiochipMutation(0);
                     solution = mutation.mutate(solution, BiochipMutation.Type.REMOVE_DEVICE);
                 } else {
-                    // remove unreachable electrodes
+                    // remove unreachable electrodes and devices
                     List<Cell> unreachableCells = visitedCells.size() < unvisitedCells.size() ? visitedCells : unvisitedCells;
                     for (Cell cell : unreachableCells) {
-                        solution.removeElectrode(cell.getX(), cell.getY());
+                        if (cell instanceof Electrode) {
+                            solution.removeElectrode(cell.getX(), cell.getY());
+                        } else {
+                            solution.removeDevice(((DeviceCell) cell).getLinkedDevice());
+                        }
                     }
                 }
                 break;
