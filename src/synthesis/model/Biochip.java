@@ -130,6 +130,7 @@ public class Biochip extends CellStructure {
     }
 
     public boolean addDevice(Device device, int startX, int startY) {
+        device = new Device(device);
         device.resetDevice();
         // determine area for placement
         int leftBound = startX - device.getStartCell().getX();
