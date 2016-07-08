@@ -184,7 +184,7 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
         double numberOfFreeCells = solution.getFreeCells().size();
         boolean fillingConstraint = numberOfFreeCells <= maxFreeCells;
         if (!fillingConstraint) {
-            violation = 100 * numberOfFreeCells / maxFreeCells;
+            violation = 10 * numberOfFreeCells / maxFreeCells;
             overallConstraintViolation -= violation;
             violatedConstraints++;
             LOGGER.finer("Filling violation " + violation);
@@ -194,7 +194,7 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
         boolean minSizeConstraint = solution.getWidth() >= minWidth && solution.getHeight() >= minHeight;
         if (!minSizeConstraint) {
             violation = (minWidth - solution.getWidth()) + (minHeight - solution.getHeight());
-            overallConstraintViolation -= violation;
+            overallConstraintViolation += violation;
             violatedConstraints++;
             LOGGER.finer("Minimum size violation: " + violation);
         }
