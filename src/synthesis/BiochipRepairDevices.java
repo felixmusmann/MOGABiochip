@@ -54,7 +54,12 @@ public class BiochipRepairDevices {
         for (Device device : possibleDevices) {
             for (int i = 0; i < 4; i++) {
                 if (i != 0) {
-                    device = device.getRotatedCopy();
+                    if (device.getWidth() > 1 && device.getHeight() > 1) {
+                        device = device.getRotatedCopy();
+                    } else {
+                        // no need to rotate this
+                        break;
+                    }
                 }
 
                 ArrayList<Orientation> orientations = new ArrayList<>(4);
