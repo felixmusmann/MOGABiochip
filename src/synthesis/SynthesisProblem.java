@@ -96,6 +96,8 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
 
         solution = repairSolution(solution);
 
+        boolean violatedCriticalConstraints = evaluateConstraints(solution);
+
         // OBJECTIVE cost
         double cost = solution.getCost();
         solution.setObjective(0, cost);
@@ -104,21 +106,26 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
         }
 
         // OBJECTIVE execution time
-        LogTool.startTimer();
-        double executionTime = solution.getExecutionTime(pathToApp, pathToLib, DEADLINE, WINDOW, WINDOW, RADIUS, RADIUS);
-        duration = LogTool.getTimerMillis();
-        if (executionTime == 0)
-            executionTime = Double.MAX_VALUE;
-        solution.setObjective(1, executionTime);
+        if (!violatedCriticalConstraints) {
+            LogTool.startTimer();
+            double executionTime = solution.getExecutionTime(pathToApp, pathToLib, DEADLINE, WINDOW, WINDOW, RADIUS, RADIUS);
+            duration = LogTool.getTimerMillis();
+            if (executionTime == 0) {
+                executionTime = Double.MAX_VALUE;
+            }
+            solution.setObjective(1, executionTime);
 
-        if (duration > 3000) {
-            String message = String.format("Calculation of execution time\n\tApp completes in %.2f s\n\tCPU time %d ms", solution.getObjective(1), duration);
-            LOGGER.warning(message + solution);
+            if (duration > 3000) {
+                String message = String.format("Calculation of execution time\n\tApp completes in %.2f s\n\tCPU time %d ms", solution.getObjective(1), duration);
+                LOGGER.warning(message + solution);
+            }
+
+            LOGGER.info(String.format("Cost\t%.0f\tTime\t%.2f\n%s", solution.getObjective(0), solution.getObjective(1), solution));
+        } else {
+            // violated some critical constraints which would cause the compilation to fail
+            solution.setObjective(1, Double.MAX_VALUE);
         }
 
-        LOGGER.info(String.format("Cost\t%.0f\tTime\t%.2f\n%s", solution.getObjective(0), solution.getObjective(1), solution));
-
-        evaluateConstraints(solution);
 
         afterEvaluation();
     }
@@ -149,7 +156,7 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
         return solution;
     }
 
-    private void evaluateConstraints(BiochipSolution solution) {
+    private boolean evaluateConstraints(BiochipSolution solution) {
         double violation = 0;
         double overallConstraintViolation = 0;
         int violatedConstraints = 0;
@@ -201,6 +208,8 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
 
         this.overallConstraintViolation.setAttribute(solution, overallConstraintViolation);
         this.numberOfViolatedConstraints.setAttribute(solution, violatedConstraints);
+
+        return !deviceConstraint;
     }
 
     private void afterEvaluation() {
