@@ -473,9 +473,10 @@ public class CRMPlacer {
 	 * I store the CRM as a list of cells, sorted in the order they need to be traversed.*/
 	public void makeCRMLibrary(Biochip biochip, CRMLibrary lib, int minW, int maxW, int minR, int maxR){
 	    // get the list of restricted rectangles 
+		
 		ArrayList<Rectangle> rrList = this.getRRs(biochip, lib); 
-		int a =0; 
-		for (a=0; a<rrList.size(); a++){
+		
+		for (int a=0; a<rrList.size(); a++){
 			Rectangle r = rrList.get(a); 
 			// fill the grid 
 			Biochip filledGrid = this.Fill(biochip, this.getCentroid(biochip, r));
@@ -484,7 +485,7 @@ public class CRMPlacer {
 			minR = (int)(Math.min(r.height, r.width)/2);
 			if (CRMPlacer.PRINT) {
 				filledGrid.printFilledGrid(); 
-				//System.out.print("RR = " + r.toString() + " centroid = " + this.getCentroid(biochip, r).toString()); 
+				System.out.print("RR = " + r.toString() + " centroid = " + this.getCentroid(biochip, r).toString()); 
 				//System.out.println(" window = " + maxW + " radius = <" +minR + "," + maxR + ">"); 
 			}
 			this.getCRM(filledGrid, lib, minW, maxW, minR, maxR); 
@@ -496,6 +497,7 @@ public class CRMPlacer {
 		for (int x=0; x<lib.CRMList.size(); x++){
 			lib.CRMList.get(x).setID("CRM" + x); 
 		} 
+		
 	}
 	
 	public ArrayList<Cell> transformRectToCRM(Rectangle r){

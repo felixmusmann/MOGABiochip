@@ -56,15 +56,15 @@ public class Main {
 	}  
 	
 	public static double compile(Arch inputArch, String appFile, String libFile, double deadline, int minWindow, int maxWindow, int minRadius, int maxRadius ) throws IOException{
+		
 		/* Initialize the ARCHITECTURE, the GRAPH and the MODULE LIBRARY*/
 		DirectedGraph graph = new DirectedGraph(appFile);
 		ModuleLibrary mLib = new ModuleLibrary(libFile);  // DO I need this for anything? 
 		
-		//System.out.println("Completion time is: " + "");
-		
 		/* Create the CRM library*/
 		CRMSyn synCRM = new CRMSyn(inputArch.biochip); 
 		CRMLibrary libCRM = new CRMLibrary();
+		
 		synCRM.placer.makeCRMLibrary(inputArch.biochip, libCRM, minWindow, maxWindow, minRadius, maxRadius);
 		libCRM.mergeLib(); 
 		

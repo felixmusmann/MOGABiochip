@@ -9,6 +9,8 @@ import java.util.ListIterator;
 
 
 public class LSPR {
+	
+	public int TIMEOUT = 10000; 
 
 	public double LSSynthWRouting_CRM (Biochip biochip, ModuleLibrary mLib, CRMLibrary libCRM, DirectedGraph ftGraph, double deadline){
 		CRMSyn synCRM = new CRMSyn(biochip); 
@@ -17,7 +19,9 @@ public class LSPR {
 		ArrayList<Node> tempOpsL = new ArrayList<Node>(); // for stores 
 
 		/* CLEAN biochip, calculate the PRIORITIES and compute READY LIST*/
+		
 		this.cleanBiochipForNewUse(biochip); 
+		
 		ftGraph.calcCriticalityFactor(mLib); 
 		computeInitialReadyList(ftGraph, readyL, biochip); 
 
@@ -25,11 +29,13 @@ public class LSPR {
 		//for (int x = 0; x<10; x++){
 		while (!readyL.isEmpty()){	
 			crt_time +=0.01;
+			
 			//crt_time = synCRM.minStartTime(readyL, crt_time);	/*TODO update time - skipping to the nearest time when an operations is finished */
 			//System.out.println("crt_time " + crt_time);
-			if (crt_time >= 1000) break; 
+			if (crt_time >= TIMEOUT) break; 
 			/* check for finished operations and create stores for them in tempOpsL */
 			synCRM.cleanBiochip(runningOpsL, ftGraph, crt_time, biochip, libCRM, tempOpsL);
+			
 			/* sort the nodes according to their priority */
 			Collections.sort(readyL, new Comparator<Node>(){
 				public int compare(Node o1, Node o2) {
@@ -54,8 +60,25 @@ public class LSPR {
 								bestMod = synCRM.allocate(v,biochip, crt_time, libCRM);		
 								if (bestMod!=null){
 									synCRM.scheduleWRouting(v, crt_time, bestMod.t0_exe, ftGraph, libCRM);
-									//System.out.println("t = " + crt_time + " Op " + v.getName() + " " + v.data.start_t + " --- " + v.data.stop_t + " " +  bestMod.t0_exe + " CRM " + bestMod.id); 
+								    System.out.println("t = " + crt_time + " Op " + v.getName() + " " + v.data.start_t + " --- " + v.data.stop_t + " " +  bestMod.t0_exe + " CRM " + bestMod.id); 
 									//System.out.println("\nAfter SCHEDULE" + libCRM); 
+									/* update readyList and running list  */
+									v.isVisited = true; 
+									readyListIt.remove(); 
+									runningOpsL.add(v);
+									/* add the ready succs to the readyList */
+									for (int i=0; i<v.succs.size(); i++){
+										Node s = ftGraph.getNode(v.succs.get(i)); 
+										if (ftGraph.isReady(s)){
+											s.data.start_t = synCRM.getStartTime(s, ftGraph, crt_time); 
+											readyListIt.add(s);
+										}
+									}
+								} else {/* no space at the moment of the biochip -> need to store the input droplets */
+									synCRM.createStores(v, tempOpsL, biochip, libCRM, crt_time, ftGraph);
+									releaseBookedReservoirs(biochip, ftGraph, crt_time, v, hasINsReady);
+								}
+									
 								}
 							}
 
@@ -65,33 +88,34 @@ public class LSPR {
 									if (bestDev.isPlaced()) bookDevice(biochip, crt_time, v);
 									else placeDeviceFirstTime(bestDev, crt_time, v, synCRM, ftGraph,  biochip);
 									synCRM.scheduleWRouting(v, crt_time, bestDev.time, ftGraph, libCRM);
+									/* update readyList and running list  */
+									v.isVisited = true; 
+									readyListIt.remove(); 
+									runningOpsL.add(v);
+									/* add the ready succs to the readyList */
+									for (int i=0; i<v.succs.size(); i++){
+										Node s = ftGraph.getNode(v.succs.get(i)); 
+										if (ftGraph.isReady(s)){
+											s.data.start_t = synCRM.getStartTime(s, ftGraph, crt_time); 
+											readyListIt.add(s);
+										}
+									}
 									//System.out.println("t = " + crt_time + " Op " + v.getName() + " " + v.data.start_t + " --- " + v.data.stop_t + " " ); 
-									
+								} else {/* no space at the moment of the biochip -> need to store the input droplets */
+									synCRM.createStores(v, tempOpsL, biochip, libCRM, crt_time, ftGraph);
+									releaseBookedReservoirs(biochip, ftGraph, crt_time, v, hasINsReady);
 								}
 							}
 
-							if (bestMod == null || bestDev == null){ /* no space at the moment of the biochip -> need to store the input droplets */
-								synCRM.createStores(v, tempOpsL, biochip, libCRM, crt_time, ftGraph);
-								releaseBookedReservoirs(biochip, ftGraph, crt_time, v, hasINsReady);
-							}
-							/* update readyList and running list  */
-							v.isVisited = true; 
-							readyListIt.remove(); 
-							runningOpsL.add(v);
-							/* add the ready succs to the readyList */
-							for (int i=0; i<v.succs.size(); i++){
-								Node s = ftGraph.getNode(v.succs.get(i)); 
-								if (ftGraph.isReady(s)){
-									s.data.start_t = synCRM.getStartTime(s, ftGraph, crt_time); 
-									readyListIt.add(s);
-								}
-							}
-						}
 					}
 				}
 			}
 		}
 		
+		if (crt_time >= TIMEOUT) {
+			System.out.println("APP HAS TIMEOUT");
+			return TIMEOUT; 
+		}
 		return this.estimateFaultyScheduleLength(Main.K_MAX, ftGraph); 
 	}
 	

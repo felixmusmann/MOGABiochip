@@ -33,6 +33,7 @@ public class CRMLibrary {
 	
 	/** Merge the components of the library (eliminate duplicates).*/
 	public void mergeLib(){
+		
 		ArrayList<CRMModule> tempCentroidList = new ArrayList<CRMModule>(); 
 		tempCentroidList.add(this.CRMList.get(0)); 
 		for (int i=1; i<this.CRMList.size(); i++){
@@ -40,7 +41,7 @@ public class CRMLibrary {
 			boolean contains = false;
 			for (int j=0; j<tempCentroidList.size() && !contains; j++){
 				CRMModule q = tempCentroidList.get(j);
-				//System.out.print(" to " + q); 
+				
 				if (m.equals(q)) {
 					contains = true; 
 				}
@@ -54,6 +55,8 @@ public class CRMLibrary {
 		for (int b =0; b<tempCentroidList.size(); b++){
 			this.CRMList.add(tempCentroidList.get(b)); 
 		}
+		
+		
 	}
 	
 	

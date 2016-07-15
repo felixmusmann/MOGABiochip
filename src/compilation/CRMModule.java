@@ -101,20 +101,50 @@ class CRMModule{
 		return false;
 	}
 
-	/** For comparison reasons. Checks if 2 CRMs are equal.*/
+/*	
 	public boolean equals(CRMModule p){
 		if (this.capacity == p.capacity && this.operation.equals(p.operation) && this.t0_exe == p.t0_exe
 				&& this.cells.size() == p.cells.size()){
 			boolean found_dif = false;
+			if (this.cells.size()>0){
 			for (int a=0; a<this.cells.size() && (!found_dif); a++){
 				if (!this.cells.get(a).equals(p.cells.get(a))) found_dif = true;
+			}
 			}
 			if (found_dif == false) return true;
 		}
 		return false;
-	}
+	} */
 
 
+	public boolean equals(CRMModule p){
+		if (this.capacity != p.capacity)
+			return false; 
+
+		if (!this.operation.equals(p.operation)){
+			
+			return false; }
+
+		if ( this.t0_exe != p.t0_exe){
+			
+			return false; 
+		}
+
+		if (this.cells.size() != p.cells.size()){
+			
+			return false; 
+		}
+
+		boolean found_dif = false;
+		if (this.cells.size()>0){
+			for (int a=0; a<this.cells.size() && (!found_dif); a++){
+				if (!this.cells.get(a).equals(p.cells.get(a))) found_dif = true;
+			}
+		}
+		if (found_dif == false) return true;
+	
+	    return false;
+}
 
 	/** Returns true if it intersects at least in one point the CRM given as paramenter*/
 	public boolean intersects(CRMModule CRM){
@@ -154,10 +184,10 @@ class CRMModule{
 
 	public String toString(){
 		//String s = new String("\nCRM: Cost " + this.t0_exe + " size " + this.cells.size() + " occ=" + this.occupied + " cap=" + this.capacity + " start=(" + this.cells.get(0).x + "," + this.cells.get(0).y + ")\n" );
-		String s = new String("\nCRM: " + this.id + "Cost " + this.t0_exe + " occ=" + this.occupied + " cap=" + this.capacity);
+		String s = new String("\nCRM: " + this.id + " OP:" + this.operation +  " Cost " + this.t0_exe + " occ=" + this.occupied + " cap=" + this.capacity);
 		System.out.print(s);
 		for (int a=0; a<this.cells.size(); a++){
-			//System.out.print(this.cells.get(a).x + " " + this.cells.get(a).y + " ; ");
+			System.out.print(this.cells.get(a).x + " " + this.cells.get(a).y + " ; ");
 		}
 		return s;
 	}

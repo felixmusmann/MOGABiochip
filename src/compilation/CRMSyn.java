@@ -138,7 +138,7 @@ public class CRMSyn {
 		ListIterator<Node> listIt = runningOpsList.listIterator(); // these are the operations currently running 
 		while(listIt.hasNext()){
 			Node v = listIt.next(); 
-			if (v.data.stop_t >= crt_time){
+			if (v.data.stop_t <= crt_time){
 				// we free the corresponding CRMModule or device on the biochip
 				this.placer.discardCRM(v.CRM); 
 				// and unbind the operation - remove it from the CRM's list of current operations 

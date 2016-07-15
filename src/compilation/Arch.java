@@ -20,6 +20,7 @@ public class Arch{
 	
 	public Arch (int width, int height, ArrayList<Pair<Integer,Integer>> coordinates, ArrayList<Device> dev){
 		  this.biochip = new Biochip(width,height) ;
+		  
 		  for (Pair<Integer, Integer> element : coordinates) {
               int x = element.fst;
               int y = element.snd;
@@ -27,6 +28,7 @@ public class Arch{
           }
 		  this.dev = dev;
 		  biochip.devices = dev;
+		  
 	}
 	
 	 public Arch (String json_file) {
