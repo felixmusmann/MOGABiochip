@@ -60,7 +60,7 @@ public class LSPR {
 								bestMod = synCRM.allocate(v,biochip, crt_time, libCRM);		
 								if (bestMod!=null){
 									synCRM.scheduleWRouting(v, crt_time, bestMod.t0_exe, ftGraph, libCRM);
-								    System.out.println("t = " + crt_time + " Op " + v.getName() + " " + v.data.start_t + " --- " + v.data.stop_t + " " +  bestMod.t0_exe + " CRM " + bestMod.id); 
+								    //System.out.println("t = " + crt_time + " Op " + v.getName() + " " + v.data.start_t + " --- " + v.data.stop_t + " " +  bestMod.t0_exe + " CRM " + bestMod.id);
 									//System.out.println("\nAfter SCHEDULE" + libCRM); 
 									/* update readyList and running list  */
 									v.isVisited = true; 

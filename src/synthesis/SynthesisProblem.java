@@ -90,10 +90,6 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
     public void evaluate(BiochipSolution solution) {
         long duration;
 
-        if (solution.getElectrodes().size() == 0) {
-            System.out.println("Hm...");
-        }
-
         solution = repairSolution(solution);
 
         boolean violatedCriticalConstraints = evaluateConstraints(solution);
@@ -143,11 +139,10 @@ public class SynthesisProblem implements Problem<BiochipSolution> {
         BiochipHolePuncher holePuncher = new BiochipHolePuncher();
         LogTool.startTimer();
         int iterations = 0;
-        if (solution.getCost() > (highestCost * costLimiter)) System.out.println(solution);
         while (iterations < 12 && solution.getCost() > (highestCost * costLimiter)) {
-            System.out.println(String.format("Solution %.2f over budget %.2f.", solution.getCost(), highestCost * 1.1));
+            //System.out.println(String.format("Solution %.2f over budget %.2f.", solution.getCost(), highestCost * 1.1));
             solution = holePuncher.execute(solution, false);
-            System.out.println("After hole punching: " + solution.getCost());
+            //System.out.println("After hole punching: " + solution.getCost());
             iterations++;
         }
         LOGGER.fine("Repair cost: " + LogTool.getTimerMillis() + " ms");
